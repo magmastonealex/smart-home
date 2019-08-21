@@ -1,0 +1,220 @@
+- id: fan_on_humid_high
+  alias: Fan on when humidity high
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.at_bathroom_humidity
+    above: 65
+  condition:
+    condition: state
+    entity_id: input_boolean.fan_turnedon
+    state: 'off'
+  action:
+  - service: switch.turn_on
+    entity_id: switch.at_bathroom_fan
+  - service: input_boolean.turn_on
+    data:
+      entity_id: input_boolean.fan_turnedon
+- id: fan_off_humid_low
+  alias: Fan off when humidity low again
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.at_bathroom_humidity
+    below: 45
+  condition:
+    condition: state
+    entity_id: input_boolean.fan_turnedon
+    state: 'on'
+  action:
+  - service: switch.turn_off
+    entity_id: switch.at_bathroom_fan
+  - service: input_boolean.turn_off
+    data:
+      entity_id: input_boolean.fan_turnedon
+- id: fan_on_humid_high_sarah
+  alias: Fan on when humidity high Sarah
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.at_bathroom_humidity
+    above: 65
+  condition:
+    condition: state
+    entity_id: input_boolean.fan_turnedon_sarah
+    state: 'off'
+  action:
+  - service: switch.turn_on
+    entity_id: switch.as_bathroom_fan
+  - service: input_boolean.turn_on
+    data:
+      entity_id: input_boolean.fan_turnedon_sarah
+- id: fan_off_humid_low_sarah
+  alias: Fan off when humidity low again Sarah
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.at_bathroom_humidity
+    below: 45
+  condition:
+    condition: state
+    entity_id: input_boolean.fan_turnedon_sarah
+    state: 'on'
+  action:
+  - service: switch.turn_off
+    entity_id: switch.as_bathroom_fan
+  - service: input_boolean.turn_off
+    data:
+      entity_id: input_boolean.fan_turnedon_sarah
+- id: '1554851095844'
+  alias: Dining Room Toggle
+  trigger:
+  - entity_id: binary_sensor.light_toggle_button_8_1
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition: []
+  action:
+  - data:
+      entity_id: light.dining_room
+    service: light.toggle
+- id: '1554854283060'
+  alias: Omers Room Toggle
+  trigger:
+  - entity_id: binary_sensor.light_toggle_button_11_1
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition: []
+  action:
+  - data:
+      entity_id: light.omer_s_room
+    service: light.toggle
+- id: '1554861496856'
+  alias: Living Room Night Mode
+  trigger:
+  - entity_id: binary_sensor.living_room_motion
+    for: 03:00:00
+    from: 'on'
+    platform: state
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: sun.sun
+    state: below_horizon
+  action:
+  - data:
+      entity_id: scene.night_time
+    service: scene.turn_on
+- id: '1555270747967'
+  alias: Tim room toggle
+  trigger:
+  - entity_id: binary_sensor.light_toggle_button_9_1
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition: []
+  action:
+  - data:
+      entity_id: light.tims_room
+    service: light.toggle
+- id: '1555688090372'
+  alias: Adams room toggle
+  trigger:
+  - entity_id: binary_sensor.light_toggle_button_12_1
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition: []
+  action:
+  - data:
+      entity_id: light.adams_room
+    service: light.toggle
+- id: '1563890871119'
+  alias: Alex Room Toggle
+  trigger:
+  - entity_id: binary_sensor.alex_wall_button_16_2
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition: []
+  action:
+  - data:
+      entity_id: light.alexs_room
+    service: light.toggle
+- id: '1564443666080'
+  alias: Make a Coffee
+  trigger:
+  - entity_id: switch.enerwave_zwnrsm1_plussmart_single_relay_switch_module_switch
+    for: 0:15:00
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition: []
+  action:
+  - data:
+      entity_id: switch.enerwave_zwnrsm1_plussmart_single_relay_switch_module_switch
+    service: switch.turn_off
+- id: '1565914964157'
+  alias: Sonoff Alex Light Toggle
+  trigger:
+  - payload: '12651688'
+    platform: mqtt
+    topic: omg/OpenMQTTGateway_ESP8266_RF/433toMQTT
+  - payload: '7384984'
+    platform: mqtt
+    topic: omg/OpenMQTTGateway_ESP8266_RF/433toMQTT
+  condition: []
+  action:
+  - data:
+      entity_id: light.alexs_room
+    service: light.toggle
+- id: '1565915062534'
+  alias: Sonoff TV Onoff
+  trigger:
+  - payload: '12651682'
+    platform: mqtt
+    topic: omg/OpenMQTTGateway_ESP8266_RF/433toMQTT
+  - payload: '7384978'
+    platform: mqtt
+    topic: omg/OpenMQTTGateway_ESP8266_RF/433toMQTT
+  condition: []
+  action:
+  - data:
+      entity_id: media_player.alex_tv
+    service: media_player.toggle
+- id: '1565915175255'
+  alias: Sonoff Tv Switch
+  trigger:
+  - payload: '7384977'
+    platform: mqtt
+    topic: omg/OpenMQTTGateway_ESP8266_RF/433toMQTT
+  - payload: '12651681'
+    platform: mqtt
+    topic: omg/OpenMQTTGateway_ESP8266_RF/433toMQTT
+  condition: []
+  action:
+  - data:
+      entity_id: input_boolean.switch_alex_switch
+    service: input_boolean.turn_on
+- id: '1565915247893'
+  alias: Sonoff TV Shield
+  trigger:
+  - payload: '12651683'
+    platform: mqtt
+    topic: omg/OpenMQTTGateway_ESP8266_RF/433toMQTT
+  - payload: '7384979'
+    platform: mqtt
+    topic: omg/OpenMQTTGateway_ESP8266_RF/433toMQTT
+  condition: []
+  action:
+  - data:
+      entity_id: input_boolean.switch_shield
+    service: input_boolean.turn_on
+- id: '1565915404329'
+  alias: Remote Light Strip Toggle
+  trigger:
+  - payload: '4994466'
+    platform: mqtt
+    topic: omg/OpenMQTTGateway_ESP8266_RF/433toMQTT
+  condition: []
+  action:
+  - data:
+      entity_id: light.extended_color_light_1
+    service: light.toggle

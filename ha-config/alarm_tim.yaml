@@ -1,0 +1,87 @@
+input_number:
+    alarm_tim_hour:
+        name: Hours
+        icon: mdi:timer
+        min: 0
+        max: 23
+        step: 1
+    alarm_tim_minutes:
+        name: Minutes
+        icon: mdi:timer
+        min: 0
+        max: 59
+        step: 1
+
+input_boolean:
+    alarm_tim_weekday:
+        name: Weekdays
+        icon: mdi:calendar
+    alarm_tim_weekend:
+        name: Weekends
+        icon: mdi:calendar
+
+sensor:
+    - platform: template
+      sensors:
+         alarm_tim_time:
+              friendly_name: 'Time'
+              value_template: >-
+                  {{ "%0.02d:%0.02d" | format(states("input_number.alarm_tim_hour") | int, states("input_number.alarm_tim_minutes") | int) }}
+
+group:
+    alarm_tim:
+        name: Alarm Clock
+        control: hidden
+        entities:
+            - sensor.alarm_tim_time
+            - input_number.alarm_tim_hour
+            - input_number.alarm_tim_minutes
+            - input_boolean.alarm_tim_weekday
+            - input_boolean.alarm_tim_weekend
+
+
+automation:
+    - id: alarm_tim_weekdays
+      alias: "Wake me up (week) tim"
+      trigger:
+          - platform: time_pattern
+            minutes: '/1'
+            seconds: 0
+      condition:
+          - condition: state
+            entity_id: input_boolean.alarm_tim_weekday
+            state: 'on'
+          - condition: time
+            weekday:
+                - mon
+                - tue
+                - wed
+                - thu
+                - fri
+          - condition: template
+            value_template: >-
+                {{ now().strftime("%H:%M") == states.sensor.alarm_tim_time.state }}
+      action:
+        service: scene.turn_on
+        entity_id: scene.tims_room_full_slow
+
+    - id: alarm_tim_weekend
+      alias: "Wake me up (weekend) tim"
+      trigger:
+          - platform: time_pattern
+            minutes: '/1'
+            seconds: 0
+      condition:
+          - condition: state
+            entity_id: input_boolean.alarm_tim_weekend
+            state: 'on'
+          - condition: time
+            weekday:
+                - sat
+                - sun
+          - condition: template
+            value_template: >-
+                {{ now().strftime("%H:%M") == states.sensor.alarm_tim_time.state }}
+      action:
+        service: scene.turn_on
+        entity_id: scene.tims_room_full_slow
