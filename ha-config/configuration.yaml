@@ -811,6 +811,12 @@ automation old:
           topic: 'media_player/alex/tv'
           qos: 0
           payload: 'IN1'
+      - delay: '00:00:05'
+      - service: mqtt.publish
+        data:
+          topic: 'media_player/alex/piocmd'
+          qos: 0
+          payload: 'VOL013'
   - alias: Alex Shield Input
     trigger:
       - platform: state
@@ -824,6 +830,12 @@ automation old:
           topic: 'media_player/alex/tv'
           qos: 0
           payload: 'IN3'
+      - delay: '00:00:05'
+      - service: mqtt.publish
+        data:
+          topic: 'media_player/alex/piocmd'
+          qos: 0
+          payload: 'VOL040' 
   - alias: NightLight Off when motion stops, darkness, and lights off.
     trigger:
       - platform: state
