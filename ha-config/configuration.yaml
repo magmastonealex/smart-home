@@ -733,7 +733,7 @@ automation old:
       - platform: numeric_state
         entity_id: sun.sun
         value_template: "{{ state.attributes.elevation }}"
-        below: 3
+        below: 0
     condition:
       condition: and
       conditions:
