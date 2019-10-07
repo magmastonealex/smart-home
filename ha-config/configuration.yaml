@@ -62,7 +62,7 @@ panel_custom: !include panel_custom.yaml
 
 logger:
 recorder:
-  purge_keep_days: 7 
+  purge_keep_days: 7
 history:
 
 camera:
@@ -130,7 +130,7 @@ sun:
 
 zwave:
   usb_path: /dev/ttyUSB-ZStick-5G
-  network_key: !secret zwave_network_key 
+  network_key: !secret zwave_network_key
 
 # Weather prediction
 sensor:
@@ -338,47 +338,47 @@ scene:
     entities:
       light.omer_s_room:
         state: on
-        brightness: 255 
-        transition: 900 
+        brightness: 255
+        transition: 900
   - name: "Omers Room Bright"
     entities:
       light.omer_s_room:
         state: on
-        brightness: 255 
+        brightness: 255
   - name: "Omers Room Off"
     entities:
       light.omer_s_room:
-        state: off 
+        state: off
   - name: tims Room Full Slow
     entities:
       light.tims_room:
         state: on
-        brightness: 255 
-        transition: 900 
+        brightness: 255
+        transition: 900
   - name: "Tims Room Bright"
     entities:
       light.tims_room:
         state: on
-        brightness: 255 
+        brightness: 255
   - name: "Tims Room Off"
     entities:
       light.tims_room:
-        state: off 
+        state: off
   - name: adams Room Full Slow
     entities:
       light.adams_room:
         state: on
-        brightness: 255 
-        transition: 900 
+        brightness: 255
+        transition: 900
   - name: "Adams Room Bright"
     entities:
       light.adams_room:
         state: on
-        brightness: 255 
+        brightness: 255
   - name: "Adams Room Off"
     entities:
       light.adams_room:
-        state: off 
+        state: off
   - name: "AS Room Bedside Only"
     entities:
       light.dimmable_light_1_4:
@@ -393,13 +393,44 @@ scene:
         state: off
   - name: "AS Room Bright"
     entities:
-      light.alexs_room:
+      light.dimmable_light_1_4:
+        state: on
+        brightness: 200
+      light.dimmable_light_1_5:
+        state: on
+        brightness: 200
+      light.bathroom_1:
+        state: on
+        brightness: 255
+      light.bathroom_2:
         state: on
         brightness: 255
   - name: "AS Room Off"
     entities:
       light.alexs_room:
         state: off
+  - name: Alexs Room Bulbone Slow
+    entities:
+      light.bathroom_1:
+        state: on
+        brightness: 255
+        transition: 1200
+  - name: Alexs Room Bulbtwo Slow
+    entities:
+      light.bathroom_2:
+        state: on
+        brightness: 255
+        transition: 900
+  - name: Alexs Room Bedside Slow
+    entities:
+      light.dimmable_light_1_4:
+        state: on
+        brightness: 200
+        transition: 900
+      light.dimmable_light_1_5:
+        state: on
+        brightness: 200
+        transition: 900
 group:
   default_view:
     view: yes
@@ -601,7 +632,7 @@ switch:
     name: "Alex TV Mute"
     state_topic: "media_player/alex/tv/mute/state"
     command_topic: "media_player/alex/tv/mute"
-    
+
 shell_command:
   roku_chromecast: 'curl -X POST http://10.102.40.39:8060/launch/tvinput.hdmi2'
   roku_switch: 'curl -X POST http://10.102.40.39:8060/launch/tvinput.hdmi1'
@@ -752,7 +783,7 @@ automation old:
       - platform: state
         entity_id: switch.leviton_dz15s_1bz_decora_smart_switch_switch
         from: 'off'
-        to: 'on' 
+        to: 'on'
     condition:
       condition: state
       entity_id: light.extended_color_light_1
@@ -768,10 +799,10 @@ automation old:
       - platform: state
         entity_id: switch.leviton_dz15s_1bz_decora_smart_switch_switch
         from: 'on'
-        to: 'off' 
+        to: 'off'
     condition:
       condition: and
-      conditions: 
+      conditions:
         - condition: state
           entity_id: light.extended_color_light_1
           state: 'on'
@@ -835,14 +866,14 @@ automation old:
         data:
           topic: 'media_player/alex/piocmd'
           qos: 0
-          payload: 'VOL040' 
+          payload: 'VOL040'
   - alias: NightLight Off when motion stops, darkness, and lights off.
     trigger:
       - platform: state
         entity_id: binary_sensor.living_room_motion
         to: 'off'
     condition:
-      condition: and 
+      condition: and
       conditions:
         - condition: state
           entity_id: sun.sun
@@ -871,7 +902,7 @@ automation old:
         entity_id: binary_sensor.living_room_motion
         to: 'on'
     condition:
-      condition: and 
+      condition: and
       conditions:
         - condition: state
           entity_id: sun.sun
