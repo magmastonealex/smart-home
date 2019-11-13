@@ -288,6 +288,8 @@ scene:
         rgb_color: [255,0,0]
       light.hue_white_lamp_3:
         state: off
+      switch.enerwave_zwnrsm1_plussmart_single_relay_switch_module_switch:
+        state: on
   - name: Living Room Off
     entities:
       light.tradfri1:
@@ -318,6 +320,8 @@ scene:
       switch.leviton_dz15s_1bz_decora_smart_switch_switch:
         state: off
       light.dining_room:
+        state: off
+      switch.enerwave_zwnrsm1_plussmart_single_relay_switch_module_switch:
         state: off
   - name: Alexs Room Full Slow
     entities:
@@ -453,6 +457,7 @@ group:
       - light.kitchen
       - switch.leviton_dz15s_1bz_decora_smart_switch_switch
       - light.extended_color_light_1
+      - switch.enerwave_zwnrsm1_plussmart_single_relay_switch_module_switch
   floorplan_maybe:
     view: no
     name: Floorplan
