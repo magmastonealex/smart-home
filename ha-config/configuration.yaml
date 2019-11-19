@@ -264,8 +264,6 @@ scene:
         brightness: 50
       light.holiday_lights:
         state: on
-      switch.leviton_dz15s_1bz_decora_smart_switch_switch:
-        state: off
   - name: Living Room Movies
     entities:
       light.tradfri1:
@@ -277,8 +275,6 @@ scene:
         state: on
         brightness: 50
       light.hue_white_lamp_2:
-        state: off
-      switch.leviton_dz15s_1bz_decora_smart_switch_switch:
         state: off
       light.dining_room:
         state: off
@@ -316,8 +312,6 @@ scene:
         state: on
         brightness: 100
       light.extended_color_light_1:
-        state: off
-      switch.leviton_dz15s_1bz_decora_smart_switch_switch:
         state: off
       light.dining_room:
         state: off
@@ -387,10 +381,12 @@ scene:
     entities:
       light.dimmable_light_1_4:
         state: on
-        brightness: 255
+        brightness: 128
       light.dimmable_light_1_5:
         state: on
-        brightness: 255
+        brightness: 128
+      switch.leviton_dz15s_1bz_decora_smart_switch_switch:
+        state: on
       light.bathroom_1:
         state: off
       light.bathroom_2:
@@ -406,12 +402,16 @@ scene:
       light.bathroom_1:
         state: on
         brightness: 255
+      switch.leviton_dz15s_1bz_decora_smart_switch_switch:
+        state: on
       light.bathroom_2:
         state: on
         brightness: 255
   - name: "AS Room Off"
     entities:
       light.alexs_room:
+        state: off
+      switch.leviton_dz15s_1bz_decora_smart_switch_switch:
         state: off
   - name: Alexs Room Bulbone Slow
     entities:
@@ -455,7 +455,6 @@ group:
     entities:
       - light.dining_room
       - light.kitchen
-      - switch.leviton_dz15s_1bz_decora_smart_switch_switch
       - light.extended_color_light_1
       - switch.enerwave_zwnrsm1_plussmart_single_relay_switch_module_switch
   floorplan_maybe:
@@ -565,6 +564,7 @@ group:
       - scene.as_room_bedside_only
       - scene.as_room_bright
       - scene.as_room_off
+      - switch.leviton_dz15s_1bz_decora_smart_switch_switch
   other:
     view: yes
     name: "Misc"

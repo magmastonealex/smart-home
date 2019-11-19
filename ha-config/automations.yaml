@@ -34,34 +34,36 @@
   alias: Fan on when humidity high Sarah
   trigger:
   - platform: numeric_state
-    entity_id: sensor.at_bathroom_humidity
+    entity_id: sensor.as_bathroom_humidity
     above: 65
   condition:
     condition: state
-    entity_id: input_boolean.fan_turnedon_sarah
+    entity_id: input_boolean.fan_sarah_turnedon
     state: 'off'
   action:
   - service: switch.turn_on
-    entity_id: switch.as_bathroom_fan
+    data:
+      entity_id: switch.as_bathroom_fan
   - service: input_boolean.turn_on
     data:
-      entity_id: input_boolean.fan_turnedon_sarah
+      entity_id: input_boolean.fan_sarah_turnedon
 - id: fan_off_humid_low_sarah
   alias: Fan off when humidity low again Sarah
   trigger:
   - platform: numeric_state
-    entity_id: sensor.at_bathroom_humidity
+    entity_id: sensor.as_bathroom_humidity
     below: 45
   condition:
     condition: state
-    entity_id: input_boolean.fan_turnedon_sarah
+    entity_id: input_boolean.fan_sarah_turnedon
     state: 'on'
   action:
   - service: switch.turn_off
-    entity_id: switch.as_bathroom_fan
+    data:
+      entity_id: switch.as_bathroom_fan
   - service: input_boolean.turn_off
     data:
-      entity_id: input_boolean.fan_turnedon_sarah
+      entity_id: input_boolean.fan_sarah_turnedon
 - id: '1554851095844'
   alias: Dining Room Toggle
   trigger:
