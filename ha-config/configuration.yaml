@@ -61,6 +61,7 @@ config:
 panel_custom: !include panel_custom.yaml
 
 logger:
+  default: info
 recorder:
   purge_keep_days: 7
 history:
@@ -175,13 +176,18 @@ sensor:
   - platform: mqtt
     state_topic: "soilmoisture/planter2"
     name: "Herb Planter Moisture 2"
-    unit_of_measurement: "pts"
+    unit_of_measurement: "pts" 
   - platform: template
     sensors:
       dishwasher_temp:
         friendly_name: "Dishwasher Temperature"
         unit_of_measurement: "°C"
         value_template: "{{25+((((((states('sensor.dishwasher_7_2') | int)/1024)*1.1)*1000)-750)/10) | round(2)}}"
+      last_door_open:
+        friendly_name: "Front Door Last Open"
+        value_template: "{{ states.binary_sensor.front_door_open.last_updated }}"
+        device_class: timestamp
+
 
 # Text to speech
 tts:
@@ -207,6 +213,11 @@ binary_sensor:
   - platform: mqtt
     name: Floorplan
     state_topic: "dummy/floorplan/sensor"
+  - platform: mqtt
+    force_update: true
+    name: "Front Door Open"
+    state_topic: "sensors/door/frontdoor"
+
 vacuum:
   - platform: mqtt
     name: "roomba"
@@ -448,7 +459,7 @@ group:
       - camera.window_camera
       - vacuum.roomba
       - cover.living_room_curtains
-      - group.plant_control
+      - group.living_room_sensors
   main_lights:
     view: no
     name: Lights
@@ -479,13 +490,12 @@ group:
       - light.tradfri1
       - light.tradfri2
       - light.hue_white_lamp_2
-  plant_control:
-    name: Herb Garden
+  living_room_sensors:
+    name: Sensors
     view: no
     entities:
-      - sensor.mint_plant_moisture
-      - sensor.herb_planter_moisture_1
-      - sensor.herb_planter_moisture_2
+      - sensor.last_door_open
+      - sensor.alex_wall_button_16_3
   kitchen_lights:
     name: Kitchen Lights
     view: no
