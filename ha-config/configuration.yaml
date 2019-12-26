@@ -28,6 +28,84 @@ homeassistant:
 # Show links to resources in log and frontend
 #introduction:
 
+stream:
+
+google_assistant:
+  project_id: 'analytical-camp-193313'
+  service_account: !include homeassist_service_account.json
+  report_state: true
+  exposed_domains:
+    - media_player
+    - cover
+  entity_config:
+    cover.living_room_curtains:
+      name: 'Living Room Curtains'
+      room: 'Living Room'
+    media_player.tv:
+      name: 'Living Room TV'
+      room: 'Living Room'
+    media_player.alex_tv:
+      name: 'Bedroom TV'
+      room: 'Bedroom'
+    switch.enerwave_zwnrsm1_plussmart_single_relay_switch_module_switch:
+      expose: true
+      name: 'Christmas Tree'
+      room: 'Living Room'
+    camera.door_camera:
+      expose: true
+      name: 'Front Door Camera'
+    light.living_room:
+      expose: true
+      name: 'Living Room Lights'
+      room: 'Living Room'
+    light.alexs_room:
+      expose: true
+      name: 'Bedroom Lights'
+      room: 'Bedroom'
+    vacuum.roomba:
+      expose: true
+      name: 'Roomba'
+      room: 'Living Room'
+    switch.at_bathroom_fan:
+      expose: true
+      name: 'Far Bathroom Fan'
+      room: 'Far Bathroom'
+    switch.as_bathroom_fan:
+      expose: true
+      name: 'Near Bathroom Fan'
+      room: 'NearBathroom'
+    light.extended_color_light_1:
+      expose: true
+      name: 'Kitchen Cabinet Lights'
+      room: 'Kitchen'
+    sensor.alex_wall_button_16_3:
+      expose: true
+      name: 'Living Room Temperature'
+      room: 'Living Room'
+    light.adams_room:
+      expose: true
+      name: 'Office Lights'
+      room: 'Office'
+    light.dining_room:
+      expose: true
+      name: 'Dining Room Light'
+      room: 'Dining Room'
+    scene.living_room_movies:
+      expose: true
+      name: 'Living Room Movies'
+      room: 'Living Room'
+    scene.night_time:
+      expose: true
+      name: 'Night Time'
+      room: 'Living Room'
+    scene.as_room_bedside_only:
+      expose: true
+      name: 'Reading Lights'
+      room: 'Bedroom'
+    group.all_automations:
+      expose: false
+
+
 cover:
   - platform: mqtt
     name: Living Room Curtains
@@ -85,16 +163,6 @@ http:
   # base_url: example.duckdns.org:8123
 
 device_tracker:
-  - platform: unifi
-    host: 10.102.40.20
-    username: HomeAssisstant
-    password: !secret unifi_password
-    verify_ssl: false
-    ssid_filter:
-      - 'toomanycouches'
-    new_device_defaults:
-      track_new_devices: False
-      hide_if_away: False
 
 # Checks for available updates
 # Note: This component will send some information about your system to
