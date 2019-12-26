@@ -94,6 +94,14 @@ google_assistant:
       expose: true
       name: 'Living Room Movies'
       room: 'Living Room'
+    scene.living_room_watch_chromecast:
+      expose: true
+      name: 'Living Room Watch Chromecast'
+      room: 'Living Room'
+    scene.living_room_play_games:
+      expose: true
+      name: 'Living Room Play Games'
+      room: 'Living Room'
     scene.night_time:
       expose: true
       name: 'Night Time'
@@ -364,6 +372,20 @@ scene:
       light.hue_white_lamp_3:
         state: off
       switch.enerwave_zwnrsm1_plussmart_single_relay_switch_module_switch:
+        state: on
+      media_player.tv:
+        state: on
+  - name: Living Room Watch Chromecast
+    entities:
+      media_player.tv:
+        state: on
+      input_boolean.switch_chromecast:
+        state: on
+  - name: Living Room Play Games
+    entities:
+      media_player.tv:
+        state: on
+      input_boolean.switch_switch:
         state: on
   - name: Living Room Off
     entities:
