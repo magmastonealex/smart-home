@@ -1,0 +1,6 @@
+mqttheartbeat:
+  image: aroth-mqttheartbeat:1.0.2
+  ports:
+    - 8473:8473
+  volumes:
+    - ./mqttcacheconfig:/config

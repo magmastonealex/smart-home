@@ -1,0 +1,13 @@
+{
+	"mqttServer": "tcp://10.102.40.20:1883",
+	"mqttUser": "videoloop",
+	"mqttPassword": "",
+	"mqttTopics": {
+		"alexsroom/doorcam/motion": "ON"
+	},
+	"httpPort": 0,
+	"rtspUrl": "rtsp://10.9.30.45:8554",
+	"bufEntries": 10000,
+	"secondsRecord": 20,
+	"recordDirectory": "recording"
+}

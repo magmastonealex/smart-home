@@ -1,0 +1,13 @@
+{
+	"mqttTopics": [
+		"sensors/motion/livingroom",
+		"vacuum/state",
+		"humid/atFan",
+		"ping",
+		"alexsroom/doorcam",
+		"covers/livingroomcurtain/state"
+	],
+	"mqttPass": "",
+	"mqttUser": "mqttcacher",
+	"mqttServer": "tcp://10.102.40.20:1883"
+}

@@ -1,0 +1,6 @@
+videorecording:
+  image: aroth-videolooper:1.0.0
+  network_mode: "host"
+  volumes:
+    - ./config:/config
+    - /home/alex/looper:/recording
