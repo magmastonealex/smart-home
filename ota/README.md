@@ -19,7 +19,7 @@ TVHeadend drives most of the process. I can't reccomend it enough. It's able to 
 
 The recording process looks something like this:
 
-![Software Process Overview](./OTA_TV_HW_Arch.png)
+![Software Process Overview](./OTA_TV_Software_Arch.png)
 
 Schedule data comes in via schedules-direct, and a tiny cron script:
 
