@@ -1,0 +1,61 @@
+#! /usr/bin/python2
+
+# headendproc is responsible for determine the season and episode.
+
+import sys
+import subprocess
+import xml.etree.ElementTree as ET
+
+filename = sys.argv[1]
+title = sys.argv[2]
+subtitle = sys.argv[3]
+timestamp = sys.argv[4]
+
+docomskip = "true"
+
+try:
+	check = sys.argv[5]
+	if check == "false":
+		docomskip = "false"
+	else:
+		docomskip = "true"
+except:
+	docomskip = "true"
+
+# This is the season/episode that Schedules Direct provided us.
+fromtvh = ""
+try:
+	fromtvh = sys.argv[6]
+except:
+	pass
+
+log = open("/tmp/tvheadend_proc.log", "a")
+log.write(filename + ", " + title+ ", " + subtitle+", "+ timestamp + fromtvh + "\n")
+
+season = "0"
+episode = "0"
+
+titlemappings={"Sherlock on Masterpiece": "Sherlock","Border Security": "Border Security: Canada's Front Line","Conviction": "Conviction (2016)","Timeless":"Timeless (2016)","The Flash": "The Flash (2014)", "Land & Sea": "Land and Sea", "marketplace": "Marketplace", "Bull": "Bull (2016)", "MacGyver": "MacGyver (2016)", "Notorious": "Notorious (2016)"}
+
+if title in titlemappings:
+	title = titlemappings[title]
+
+if len(fromtvh) > 0:
+	try:
+		ssn = fromtvh.split('E')[0]
+		episode = fromtvh.split('E')[1]
+		season = ssn.split('S')[1]
+	except:
+		log.write("Failed splitting string: " + fromtvh)
+else:
+	z = subprocess.Popen(["/usr/share/mythtv/metadata/Television/ttvdb.py", "-N", title,subtitle], stdout=subprocess.PIPE)
+	output = z.communicate()[0]
+	if(output.rstrip() != ""):
+		metadata = ET.fromstring(output)
+		season = metadata.find("item").find("season").text
+		episode = metadata.find("item").find("episode").text
+
+log.write(filename + " " + title+ " " +season+" " + episode+"\n")
+log.close()
+
+subprocess.call(["/usr/bin/en.py", filename,season,episode,title,timestamp, docomskip])
