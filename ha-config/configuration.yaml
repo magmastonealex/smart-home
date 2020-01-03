@@ -800,7 +800,7 @@ media_player:
         data_template:
           topic: 'media_player/alex/tv/volume'
           qos: 0
-          payload: '{{ source }}'
+          payload: '{{ volume_level }}'
     attributes:
       state: switch.alex_tv_onoff
       is_volume_muted: switch.alex_tv_mute
@@ -855,7 +855,7 @@ automation old:
               entity_id: sensor.dark_sky_icon
               state: 'partly-cloudy-day'
         - condition: time
-          after: "15:00:00"
+          after: "14:00:00"
         - condition: state
           entity_id: input_boolean.curtains_turnedon
           state: 'off'
