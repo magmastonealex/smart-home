@@ -15,6 +15,8 @@ The HDHomeRun works perfectly, except for a little weirdness I started noticing 
 Software
 ===
 
+This is under some development - especially the postprocessing script. process.py is an in-progress rewrite.
+
 TVHeadend drives most of the process. I can't reccomend it enough. It's able to read video from just about anywhere - anything from SAT>IP to stdout from ffmpeg, including DVB cards and HTTP natively. It's very flexible in recording and live streaming - I also use it to stream to Plex's LiveTV feature via [Antennas](https://github.com/TheJF/antennas), where it transcodes video to h.264 at a lower bitrate for sending over the Internet live.
 
 The recording process looks something like this:
