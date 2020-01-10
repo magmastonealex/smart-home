@@ -104,7 +104,7 @@ def get_file_length(filename):
     istream=json.loads(stdout)["streams"]
     return float(istream[0]["duration"])
 
-CUTTING_ARGS = ["-acodec", "copy", "-vcodec", "copy", "-muxdelay", "0", "-threads", "0",  "-avoid_negative_ts", "make_zero", "-fflags","+genpts", "-f", "mpegts"]
+CUTTING_ARGS = ["-acodec", "copy", "-vcodec", "copy", "-threads", "0",  "-avoid_negative_ts", "make_zero", "-fflags","+genpts", "-f", "mpegts"]
 
 # Regenerate PTS. It's often very high (since TV channels run for a long time!), and that causes issues for some players.
 def postprocess_broadcast_ts(filename, outpath):
