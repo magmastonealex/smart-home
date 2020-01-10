@@ -1,6 +1,7 @@
 from loguru import logger
 import os
 import sys
+import uuid
 
 from process_lib import get_edl, cut_on_edl, get_file_length, process_subtitles, postprocess_broadcast_ts
 
@@ -14,6 +15,12 @@ if "TEMPDIR" in os.environ:
     TEMPDIR = os.environ["TEMPDIR"]
 
 
+def attempt_chmod(filename):
+    try:
+        os.chmod(filename, 0o666)
+    except:
+        pass
+
 def main():
     if len(sys.argv) < 4:
         print("Usage: " + sys.argv[0] + " <input_filename> <comskip (true/false)> <output_filename>")
@@ -26,10 +33,10 @@ def main():
 
     logger.info("Starting processing %s, dest %s skipping %s" % (inpath, outfile, comskip))
     
-    edl = ['735.28\t988.04\t0\n', '1430.91\t1706.92\t0\n', '2186.15\t2447.06\t0\n', '2793.99\t3079.76\t0\n', '3551.83\t3603.72\t0\n']
+    edl = []
     if comskip != "false":
         edl = get_edl(inpath, PATH_TO_COMSKIP)
-    print(edl)
+
     if len(edl) != 0:
         try:
             if cut_on_edl(inpath, edl, outfile, TEMPDIR) == False:
@@ -51,6 +58,8 @@ def main():
 
     if process_subtitles(outfile, os.path.splitext(outfile)[0] + ".en.ssa") == False:
         logger.warning("Failed to extract subtitles from output file")
+    attempt_chmod(outfile)
+    attempt_chmod(os.path.splitext(outfile)[0] + ".en.ssa")
     
 if __name__ == "__main__":
     main()

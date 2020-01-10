@@ -71,11 +71,11 @@ if season == "0" and episode == "0":
 
 log.write(filename + " " + outpath + " skipping? " + docomskip + "\n")
 
-subprocess.call(["/usr/bin/docker", "run", "--rm"
-	"-v", "/Media/myth":"/Media/myth",
+subprocess.call(["/usr/bin/docker", "run", "--rm",
+	"-v", "/Media/myth:/Media/myth",
 	"-v", "/Media/tv:/Media/tv",
 	"-v", "/Media/tmp:/Media/tmp",
-	"tv_postprocess:1.0"
+	"tv_postprocess:1.0",
 	"python3", "/postprocess/postproc.py", filename, docomskip, outpath])
 os.chdir("/usr/share/ffproc")
 subprocess.call(["/usr/bin/python2", "./ffproc.py", outpath])
