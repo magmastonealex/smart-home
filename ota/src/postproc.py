@@ -37,7 +37,7 @@ def main():
             fllen_pre = get_file_length(inpath)
             fllen_post = get_file_length(outfile)
             logger.info("Original Length %f, final length %f" %(fllen_pre, fllen_post))
-            if fllen_post < 0.55*fllen_pre or fllen_pre == 0.0 or fllen_post == 0.0:
+            if fllen_post < 0.1*fllen_pre or fllen_pre == 0.0 or fllen_post == 0.0:
                 raise RuntimeError("More than half of file trimmed. Falling back to no comskip.")
         except:
             logger.exception("Failed to cut and process file. Falling back to straight postprocessing.")
@@ -49,7 +49,7 @@ def main():
         if postprocess_broadcast_ts(inpath, outfile) == False:
             logger.warning("failed to postprocess into final location. This is a fatal error.")
 
-    if process_subtitles(outfile, os.path.splitext(outfile)[0] + ".ssa") == False:
+    if process_subtitles(outfile, os.path.splitext(outfile)[0] + ".en.ssa") == False:
         logger.warning("Failed to extract subtitles from output file")
     
 if __name__ == "__main__":

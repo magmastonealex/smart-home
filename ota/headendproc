@@ -1,16 +1,17 @@
 #! /usr/bin/python2
 
-# headendproc is responsible for determine the season and episode.
-
 import sys
 import subprocess
-import xml.etree.ElementTree as ET
+import shutil
+import os
+
 
 filename = sys.argv[1]
 title = sys.argv[2]
 subtitle = sys.argv[3]
 timestamp = sys.argv[4]
 
+# Highly questionable. This should turn into actual argparsing.
 docomskip = "true"
 
 try:
@@ -22,15 +23,15 @@ try:
 except:
 	docomskip = "true"
 
-# This is the season/episode that Schedules Direct provided us.
 fromtvh = ""
 try:
 	fromtvh = sys.argv[6]
 except:
 	pass
 
+# Also highly questionable, especially since this can and will be invoked simultaneously.
 log = open("/tmp/tvheadend_proc.log", "a")
-log.write(filename + ", " + title+ ", " + subtitle+", "+ timestamp + fromtvh + "\n")
+log.write(filename + ", " + title+ ", " + subtitle+", "+ timestamp +", " + fromtvh + "\n")
 
 season = "0"
 episode = "0"
@@ -46,16 +47,35 @@ if len(fromtvh) > 0:
 		episode = fromtvh.split('E')[1]
 		season = ssn.split('S')[1]
 	except:
-		log.write("Failed splitting string: " + fromtvh)
-else:
+		season = "0"
+		episode = "0"
+
+if season == "0" and episode == "0":
+	log.write("Falling back to ttvdb for " + filename + "\n")
 	z = subprocess.Popen(["/usr/share/mythtv/metadata/Television/ttvdb.py", "-N", title,subtitle], stdout=subprocess.PIPE)
 	output = z.communicate()[0]
-	if(output.rstrip() != ""):
+	if(output.rstrip() == ""):
+		log.write("Failed getting season/episode for " + filename + "\n")
+	else:
 		metadata = ET.fromstring(output)
 		season = metadata.find("item").find("season").text
 		episode = metadata.find("item").find("episode").text
 
-log.write(filename + " " + title+ " " +season+" " + episode+"\n")
-log.close()
+outpath = "/Media/tv/"+title+"/Season "+season+"/"+title+".S"+season+"E"+episode+".ts"
 
-subprocess.call(["/usr/bin/en.py", filename,season,episode,title,timestamp, docomskip])
+if season == "0" and episode == "0":
+	log.write("Falling back to datetime for " + filename + "\n")
+	daterec = datetime.datetime.fromtimestamp(int(timestamp))
+	dt = daterec.strftime("%Y-%m-%d")
+	outpath="/Media/tv/"+title+"/"+title+" - "+dt+".ts"
+
+log.write(filename + " " + outpath + " skipping? " + docomskip + "\n")
+
+subprocess.call(["/usr/bin/docker", "run", "--rm"
+	"-v", "/Media/myth":"/Media/myth",
+	"-v", "/Media/tv:/Media/tv",
+	"-v", "/Media/tmp:/Media/tmp",
+	"tv_postprocess:1.0"
+	"python3", "/postprocess/postproc.py", filename, docomskip, outpath])
+os.chdir("/usr/share/ffproc")
+subprocess.call(["/usr/bin/python2", "./ffproc.py", outpath])
