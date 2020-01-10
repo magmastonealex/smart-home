@@ -104,9 +104,11 @@ def get_file_length(filename):
     istream=json.loads(stdout)["streams"]
     return float(istream[0]["duration"])
 
+CUTTING_ARGS = ["-acodec", "copy", "-vcodec", "copy", "-muxdelay", "0", "-threads", "0",  "-avoid_negative_ts", "make_zero", "-fflags","+genpts", "-f", "mpegts"]
+
 # Regenerate PTS. It's often very high (since TV channels run for a long time!), and that causes issues for some players.
 def postprocess_broadcast_ts(filename, outpath):
-    subp = subprocess.run(["ffmpeg", *ffmpeg_common_args, "-i", filename, "-f", "mpegts", "-vcodec", "copy", "-acodec", "copy", "-muxdelay", "0", "-avoid_negative_ts", "make_zero", "-fflags", "+genpts", "-y", outpath])
+    subp = subprocess.run(["ffmpeg", *ffmpeg_common_args, "-i", filename, "-f", "mpegts", *CUTTING_ARGS, "-y", outpath])
     if subp.returncode != 0:
         return False
     return True
@@ -119,9 +121,13 @@ def cut_on_edl(filename, edl, outpath, tempdir):
     thisuuid = str(uuid.uuid4())
 
     # Each line in the EDL contains a range we need to chop out.
-    # This is a terrible algorithm that should be re-written to
-    # get a bunch of files out that we need to keep.
+    # This is a terrible algorithm that should be re-written, but it
+    # gets a bunch of files out that we need to keep.
     # Then, we use the concat filter to bring them all together.
+    # Note the special cutting args we use - including genpts and muxdelay.
+    # This helps avoid some of the weirdness from dealing with broadcast TS files,
+    # like nonsense PTS and start time values.
+    # The end result has a start time of zero (as you'd expect), and sane PTS values.
     for ln in edl:
         ln=ln.rstrip()
         times=ln.split("\t")
@@ -131,8 +137,8 @@ def cut_on_edl(filename, edl, outpath, tempdir):
             pass
         else:
             if ending != "":
-                logger.info("copying: -ss: "+ending+" -t: "+str((float(times[0])-float(ending))+4))
-                ffm=subprocess.run(["ffmpeg", *ffmpeg_common_args, "-i", filename,"-acodec", "copy", "-vcodec", "copy", "-muxdelay", "0", "-threads", "0",  "-avoid_negative_ts", "make_zero", "-fflags","+genpts", "-f", "mpegts", "-ss", ending, "-t",str(float(times[0])-float(ending)+3.0), tempdir + "/comskipping_"+thisuuid+"_"+str(num)+".ts"])
+                logger.info("copying: -ss: "+ending+" -t: "+str((float(times[0])-float(ending))+3.0))
+                ffm=subprocess.run(["ffmpeg", *ffmpeg_common_args, "-i", filename, *CUTTING_ARGS, "-ss", ending, "-t",str(float(times[0])-float(ending)+3.0), tempdir + "/comskipping_"+thisuuid+"_"+str(num)+".ts"])
                 if ffm.returncode != 0:
                     logger.warn("ffmpeg invoke failed")
                     _cleanup_comskipping(thisuuid, tempdir)
@@ -141,7 +147,7 @@ def cut_on_edl(filename, edl, outpath, tempdir):
         ending=times[1]
 
     logger.info("Making final copy")
-    ffm=subprocess.run(["ffmpeg", *ffmpeg_common_args, "-i", filename,"-acodec", "copy", "-vcodec", "copy", "-muxdelay", "0", "-threads", "0", "-avoid_negative_ts", "make_zero", "-fflags","+genpts", "-f", "mpegts", "-ss", ending, tempdir + "/comskipping_"+thisuuid+"_"+str(num)+".ts"])
+    ffm=subprocess.run(["ffmpeg", *ffmpeg_common_args, "-i", filename, *CUTTING_ARGS, "-ss", ending, tempdir + "/comskipping_"+thisuuid+"_"+str(num)+".ts"])
     if ffm.returncode != 0:
         logger.warning("ffmpeg invoke failed")
         _cleanup_comskipping(thisuuid, tempdir)
@@ -152,7 +158,7 @@ def cut_on_edl(filename, edl, outpath, tempdir):
         finalline=finalline+tempdir+"/comskipping_"+thisuuid+"_"+str(x)+".ts|"
 
     subprocess.run(["mkdir","-p",os.path.dirname(outpath)])
-    concat = subprocess.run(["ffmpeg", *ffmpeg_common_args, "-i", "concat:"+finalline[:-1], "-f", "mpegts", "-vcodec", "copy", "-acodec", "copy", "-muxdelay", "0", "-avoid_negative_ts", "make_zero", "-fflags", "+genpts", "-y", outpath])
+    concat = subprocess.run(["ffmpeg", *ffmpeg_common_args, "-i", "concat:"+finalline[:-1], "-f", "mpegts", *CUTTING_ARGS, "-y", outpath])
     if concat.returncode != 0:
         logger.warning("ffmpeg invoke failed")
         _cleanup_comskipping(thisuuid, tempdir)
