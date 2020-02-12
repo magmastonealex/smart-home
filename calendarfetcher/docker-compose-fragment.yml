@@ -1,0 +1,6 @@
+calendarfetcher:
+  image: aroth-calfetcher:1.0.0
+  network_mode: "host"
+  restart: always
+  volumes:
+    - ./config:/config

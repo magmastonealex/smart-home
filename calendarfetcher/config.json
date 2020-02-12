@@ -1,0 +1,7 @@
+{
+	"bearer_token": "",
+	"host": "10.102.40.20",
+	"port": "9123",
+	"entity_id": "input_text.calendarevents",
+	"calendar_url": ""
+}
