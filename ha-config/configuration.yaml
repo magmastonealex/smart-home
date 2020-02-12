@@ -22,7 +22,11 @@ homeassistant:
       trusted_networks:
         - 10.102.40.0/24
         - 10.100.0.0/24
+      trusted_users:
+        10.102.40.0/24: a2743d687ca948cbad02592c7dafb87c
+        10.100.0.0/24: 7bcee28a808d47fb9769b9ebeade8006
       allow_bypass_login: true
+    - type: homeassistant
     - type: legacy_api_password
       api_password: !secret api_password
 # Show links to resources in log and frontend
@@ -195,6 +199,11 @@ conversation:
 
 # Enables a map showing the location of tracked devices
 #map:
+
+input_text:
+  calendarevents:
+    name: 'Calendar Events'
+    initial: 'Nothing Much'
 
 mysensors:
   gateways:
@@ -715,9 +724,9 @@ switch:
     switches:
       tv_onoff:
         friendly_name: "TV OnOff"
-        command_on: 'curl -X POST http://10.102.40.39:8060/keypress/PowerOn'
-        command_off: 'curl -X POST http://10.102.40.39:8060/keypress/PowerOff'
-        command_state: 'curl -s GET http://10.102.40.39:8060/query/device-info | grep power-mode | sed -e "s:<power-mode>Headless</power-mode>:OFF:" -e "s:<power-mode>PowerOn</power-mode>:ON:"'
+        command_on: 'curl -X POST http://10.103.41.11:8060/keypress/PowerOn'
+        command_off: 'curl -X POST http://10.103.41.11:8060/keypress/PowerOff'
+        command_state: 'curl -s GET http://10.103.41.11:8060/query/device-info | grep power-mode | sed -e "s:<power-mode>Headless</power-mode>:OFF:" -e "s:<power-mode>PowerOn</power-mode>:ON:"'
         value_template: '{{ value == "ON" }}'
   - platform: mqtt
     name: "AT Bathroom Fan"
@@ -739,14 +748,14 @@ switch:
     command_topic: "media_player/alex/tv/mute"
 
 shell_command:
-  roku_chromecast: 'curl -X POST http://10.102.40.39:8060/launch/tvinput.hdmi2'
-  roku_switch: 'curl -X POST http://10.102.40.39:8060/launch/tvinput.hdmi1'
-  roku_volumeup: 'curl -X POST http://10.102.40.39:8060/keypress/VolumeUp'
-  roku_volumedown: 'curl -X POST http://10.102.40.39:8060/keypress/VolumeDown'
+  roku_chromecast: 'curl -X POST http://10.103.41.11:8060/launch/tvinput.hdmi2'
+  roku_switch: 'curl -X POST http://10.103.41.11:8060/launch/tvinput.hdmi1'
+  roku_volumeup: 'curl -X POST http://10.103.41.11:8060/keypress/VolumeUp'
+  roku_volumedown: 'curl -X POST http://10.103.41.11:8060/keypress/VolumeDown'
 
 media_player:
   - platform: roku
-    host: 10.102.40.39
+    host: 10.103.41.11
   - platform: universal
     name: TV
     children:
