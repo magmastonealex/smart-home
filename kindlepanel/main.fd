@@ -10,7 +10,7 @@ Unit of measure: FL_COORD_PIXEL
 Name: main
 Width: 768
 Height: 1018
-Number of Objects: 28
+Number of Objects: 30
 
 --------------------
 class: FL_BOX
@@ -321,7 +321,7 @@ argument: 2
 --------------------
 class: FL_BUTTON
 type: FL_NORMAL_BUTTON
-box: 738 988 30 30
+box: 720 970 30 30
 boxtype: FL_UP_BOX
 colors: FL_COL1 FL_COL1
 alignment: FL_ALIGN_CENTER
@@ -515,6 +515,42 @@ gravity: FL_NoGravity FL_NoGravity
 name: 
 callback: rgbstrip_off
 argument: 0
+
+--------------------
+class: FL_LABELFRAME
+type: FL_ENGRAVED_FRAME
+box: 0 400 270 180
+boxtype: FL_NO_BOX
+colors: FL_BLACK FL_COL1
+alignment: FL_ALIGN_LEFT_TOP
+style: FL_NORMAL_STYLE
+size: FL_LARGE_SIZE
+lcol: FL_BLACK
+label: Upcoming Events
+shortcut: 
+resize: FL_RESIZE_ALL
+gravity: FL_NoGravity FL_NoGravity
+name: 
+callback: 
+argument: 
+
+--------------------
+class: FL_TEXT
+type: FL_NORMAL_TEXT
+box: 20 420 240 150
+boxtype: FL_FLAT_BOX
+colors: FL_WHITE FL_MCOL
+alignment: FL_ALIGN_LEFT_TOP|FL_ALIGN_INSIDE
+style: FL_NORMAL_STYLE
+size: FL_LARGE_SIZE
+lcol: FL_BLACK
+label: Testing\nTesting
+shortcut: 
+resize: FL_RESIZE_ALL
+gravity: FL_NoGravity FL_NoGravity
+name: upnext_label
+callback: 
+argument: 
 
 ==============================
 create_the_forms

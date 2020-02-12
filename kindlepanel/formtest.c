@@ -25,6 +25,16 @@ volatile time_t turnedOnAtTime = 0;
 FL_FORM *dialogForm = NULL;
 char* dialogText;
 
+FL_OBJECT *upnextText = NULL;
+
+typedef struct {
+    char * ptr;
+    size_t len;
+    size_t max;
+} fake_string;
+
+fake_string * upnextRespString;
+
 static void dismiss_cb(FL_OBJECT *obj, long data)
 {
     if(dialogForm) {
@@ -124,6 +134,7 @@ void do_curl_post(const char* url, const char* jsonstr) {
         headers = curl_slist_append(headers, "Accept: application/json");
         headers = curl_slist_append(headers, "Content-Type: application/json");
         headers = curl_slist_append(headers, "charsets: utf-8");
+        headers = curl_slist_append(headers, "Authorization: Bearer " BEARER_TOKEN);
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, jsonstr);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, strlen(jsonstr));
@@ -131,6 +142,65 @@ void do_curl_post(const char* url, const char* jsonstr) {
         res = curl_easy_perform(curl);
         curl_easy_cleanup(curl);
     }
+}
+
+size_t writefunc(void *ptr, size_t size, size_t nmemb, fake_string *s)
+{
+  size_t copy_len;
+  size_t new_len = s->len + size*nmemb;
+  copy_len = size*nmemb;
+  if(new_len > s->max) {
+    copy_len = s->max - (s->len + size*nmemb) - 1;
+  }
+
+  memcpy(s->ptr+s->len, ptr, copy_len);
+  s->ptr[new_len] = '\0';
+  s->len = new_len;
+
+  return size*nmemb;
+}
+
+void do_curl_post_retval(const char* url, const char* jsonstr, fake_string* retval) {
+    CURL *curl = curl_easy_init();
+    if(curl) {
+        CURLcode res;
+        curl_easy_setopt(curl, CURLOPT_URL, url);
+        curl_easy_setopt(curl, CURLOPT_POST, 1L);
+        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+        curl_easy_setopt(curl, CURLOPT_FORBID_REUSE, 1L);
+        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10L);
+        
+        struct curl_slist *headers = NULL;
+        headers = curl_slist_append(headers, "Accept: application/json");
+        headers = curl_slist_append(headers, "Content-Type: application/json");
+        headers = curl_slist_append(headers, "charsets: utf-8");
+        headers = curl_slist_append(headers, "Authorization: Bearer "BEARER_TOKEN);
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, jsonstr);
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, strlen(jsonstr));
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, retval);
+
+        res = curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
+    }
+}
+
+void update_upcoming(int x, void* data) {
+    upnextRespString->len = 0;
+    upnextRespString->ptr[0] = '\0';
+    do_curl_post_retval("http://10.102.40.20:9123/api/template", "{\"template\":\"{{ states('input_text.calendarevents') }}\"}", upnextRespString);
+
+    for (size_t i = 0; i < upnextRespString->len-1; ++i)
+    {
+        if (upnextRespString->ptr[i] == '\\' && upnextRespString->ptr[i+1] == 'n') {
+
+            upnextRespString->ptr[i] = ' ';
+            upnextRespString->ptr[i+1] = '\n';
+        }
+    }
+    fl_set_object_label(upnextText, upnextRespString->ptr);
+    fl_add_timeout(300000, update_upcoming, NULL);
 }
 
 void open_cover(const char* jsonstr) {
@@ -219,13 +289,9 @@ void turnon_backlight() {
 }
 
 
-
-
 /**
  * Xforms callbacks
  * */
-
-
 void living_room_state( FL_OBJECT *obj, long val ) {
     
     const char* fullstr = "{\"entity_id\": \"scene.living_room_on_full\"}";
@@ -325,63 +391,25 @@ void exit_button( FL_OBJECT *obj, long val ) {
     exit(0);
 }
 
-
 void backlight_on( FL_OBJECT * obj, long val) {
     turnon_backlight();
 }
 
-
 void do_exit(int x, void* data) {
     exit(0);
 }
-/**
-MQTT callbacks
-*/
-void connlost(void *context, char *cause)
-{
-    printf("\nConnection lost\n");
-    printf("     cause: %s\n", cause);
-    fl_show_oneliner("Disconnected. Waiting...", 0, 300);
-    int rc;
-    if ((rc = MQTTClient_connect(client, &conn_opts)) != MQTTCLIENT_SUCCESS)
-    {
-        fl_hide_oneliner();
-        fl_show_oneliner("Connection error. Restart app.", 0, 300);
-        printf("Failed to connect, return code %d\n", rc);
-        fl_add_timeout(5000, do_exit, NULL);
-        while(1) {
-            fl_do_forms();
-        }
-    }
-    MQTTClient_subscribe(client, "kindle/showMessage", 0);
-    fl_hide_oneliner();
-
-}
-
-
-void delivered(void *context, MQTTClient_deliveryToken dt)
-{
-    printf("Message with token value %d delivery confirmed\n", dt);
-}
-
-int msgarrvd(void *context, char *topicName, int topicLen, MQTTClient_message *message)
-{
-    printf("Message Arivved\n");
-    
-    if (strcmp(topicName, "kindle/showMessage") == 0) {
-        showDialog(message->payload, message->payloadlen);
-    }
-    MQTTClient_freeMessage(&message);
-    MQTTClient_free(topicName);
-    return 1;
-}
-
 
 int main(int argc, char **argv)
 {
     #ifdef __arm__
     daemonise();
     #endif
+
+    upnextRespString = malloc(sizeof(fake_string));
+    upnextRespString->ptr = malloc(1025);
+    upnextRespString->max = 1024;
+    upnextRespString->len = 0;
+
 
     XInitThreads();
     //FL_FORM *form;
@@ -394,6 +422,7 @@ int main(int argc, char **argv)
 
     FD_main *mainForm = create_form_main();
 
+    upnextText = mainForm->upnext_label;
     //form = fl_bgn_form(FL_UP_BOX, 230, 100);
     //fl_add_button(FL_NORMAL_BUTTON, 20, 20, 190, 60, "Hello world");
     //fl_add_slider(FL_VERT_NICE_SLIDER, 0, 0, 30, 190, "BRGHT");
@@ -403,45 +432,16 @@ int main(int argc, char **argv)
     fl_show_form(mainForm->main, FL_PLACE_CENTER, FL_FULLBORDER, "L:A_N:application_ID:formtester");
 
 
-    //MQTT setup
-    MQTTClient_message pubmsg = MQTTClient_message_initializer;
-    MQTTClient_deliveryToken token;
-    int rc;
-    MQTTClient_create(&client, "tcp://10.102.40.20:1883", "kindle",
-        MQTTCLIENT_PERSISTENCE_NONE, NULL);
-    conn_opts.keepAliveInterval = 20;
-    conn_opts.cleansession = 1;
-    conn_opts.username = "kindledisp";
-    conn_opts.password = "Xoo2wai4oomae9Oom8Ai";
-
-    MQTTClient_setCallbacks(client, NULL, connlost, msgarrvd, delivered);
-    if ((rc = MQTTClient_connect(client, &conn_opts)) != MQTTCLIENT_SUCCESS)
-    {
-        printf("Failed to connect, return code %d\n", rc);
-        exit(1);
-    }
-    printf("Connected to mqtt\n");
-    MQTTClient_subscribe(client, "kindle/showMessage", 0);
-    /*
-    pubmsg.payload = PAYLOAD;
-    pubmsg.payloadlen = strlen(PAYLOAD);
-    pubmsg.qos = 0;
-    pubmsg.retained = 0;
-    
-    MQTTClient_publishMessage(client, TOPIC, &pubmsg, &token);
-    printf("Waiting for publication of %s\n"
-            "on topic %s for client with ClientID: %s\n",
-            PAYLOAD, TOPIC, "kindle");
-    printf("%d\n", MQTTClient_publish(client, "lights/set", 4, "full", 0, 0, NULL));
-*/
     //pthread_mutex_unlock(&formMutex);
-
+    update_upcoming(0, NULL);
     while(1) {
 	   fl_do_forms();
     }
 
-   fl_hide_form(mainForm->main);
+    fl_hide_form(mainForm->main);
     fl_finish();
+    free(upnextRespString->ptr);
+    free(upnextRespString);
     return 0;
 }
 
