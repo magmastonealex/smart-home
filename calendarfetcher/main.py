@@ -32,7 +32,8 @@ if bearer_token == '' or entity_id == '' or calendar_url == '':
 while True:
 	try:
 		start = datetime.now().date()
-		end = (datetime.now() + timedelta(days=6)).date()
+		end = (datetime.now() + timedelta(days=7)).date()
+		print(start, end)
 
 		es = events(url=calendar_url, start=start, end=end)
 
@@ -40,7 +41,8 @@ while True:
 		evstr = ""
 		for e in es[:3]:
 			evstr = evstr + e.start.strftime("%a@%I:%M") + e.end.strftime("-%I:%M:\n  ") + e.summary + "\n"
-
+		if len(evstr) == 0:
+			evstr = "Nothing scheduled!"
 		print(json.dumps({"str":evstr}))
 		r = requests.post('http://{host}:{port}/api/services/input_text/set_value'.format(host=host, port=port),
 			json={"value": evstr, "entity_id": entity_id},
