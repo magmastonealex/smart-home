@@ -14,3 +14,5 @@
 ip_bans.yaml
 secrets.yaml
 known_devices.yaml
+
+homeassist_service_account.json

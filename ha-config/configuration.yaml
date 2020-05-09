@@ -14,9 +14,6 @@ homeassistant:
   customize: !include customize.yaml
   packages:
     alexs_alarm: !include alarm_alex.yaml
-    omers_alarm: !include alarm_omer.yaml
-    tims_alarm: !include alarm_tim.yaml
-    adams_alarm: !include alarm_adam.yaml
   auth_providers:
     - type: trusted_networks
       trusted_networks:
@@ -42,27 +39,14 @@ google_assistant:
     - media_player
     - cover
   entity_config:
-    cover.living_room_curtains:
-      name: 'Living Room Curtains'
-      room: 'Living Room'
-    media_player.tv:
+    media_player.alex_tv:
       name: 'Living Room TV'
       room: 'Living Room'
-    media_player.alex_tv:
-      name: 'Bedroom TV'
-      room: 'Bedroom'
-    switch.enerwave_zwnrsm1_plussmart_single_relay_switch_module_switch:
-      expose: true
-      name: 'Christmas Tree'
-      room: 'Living Room'
-    camera.door_camera:
-      expose: true
-      name: 'Front Door Camera'
     light.living_room:
       expose: true
       name: 'Living Room Lights'
       room: 'Living Room'
-    light.alexs_room:
+    light.bedroom:
       expose: true
       name: 'Bedroom Lights'
       room: 'Bedroom'
@@ -70,42 +54,10 @@ google_assistant:
       expose: true
       name: 'Roomba'
       room: 'Living Room'
-    switch.at_bathroom_fan:
-      expose: true
-      name: 'Far Bathroom Fan'
-      room: 'Far Bathroom'
-    switch.as_bathroom_fan:
-      expose: true
-      name: 'Near Bathroom Fan'
-      room: 'NearBathroom'
-    light.extended_color_light_1:
-      expose: true
-      name: 'Kitchen Cabinet Lights'
-      room: 'Kitchen'
-    sensor.alex_wall_button_16_3:
-      expose: true
-      name: 'Living Room Temperature'
-      room: 'Living Room'
-    light.adams_room:
+    light.office:
       expose: true
       name: 'Office Lights'
       room: 'Office'
-    light.dining_room:
-      expose: true
-      name: 'Dining Room Light'
-      room: 'Dining Room'
-    scene.living_room_movies:
-      expose: true
-      name: 'Living Room Movies'
-      room: 'Living Room'
-    scene.living_room_watch_chromecast:
-      expose: true
-      name: 'Living Room Watch Chromecast'
-      room: 'Living Room'
-    scene.living_room_play_games:
-      expose: true
-      name: 'Living Room Play Games'
-      room: 'Living Room'
     scene.night_time:
       expose: true
       name: 'Night Time'
@@ -117,13 +69,7 @@ google_assistant:
     group.all_automations:
       expose: false
 
-
 cover:
-  - platform: mqtt
-    name: Living Room Curtains
-    device_class: curtain
-    command_topic: "covers/livingroomcurtain/command"
-    state_topic: "covers/livingroomcurtain/state"
 
 panel_iframe:
   nagios:
@@ -204,6 +150,7 @@ input_text:
   calendarevents:
     name: 'Calendar Events'
     initial: 'Nothing Much'
+    max: 255
 
 mysensors:
   gateways:
@@ -234,40 +181,8 @@ sensor:
       - apparent_temperature
       - precip_probability
       - precip_intensity
-  - platform: mqtt
-    state_topic: "temp/atFan"
-    name: "AT Bathroom Temp"
-    unit_of_measurement: °C
-  - platform: mqtt
-    state_topic: "humid/atFan"
-    name: "AT Bathroom Humidity"
-    unit_of_measurement: "pct"
-  - platform: mqtt
-    state_topic: "humid/asFan"
-    name: "AS Bathroom Humidity"
-    unit_of_measurement: "pct"
-  - platform: mqtt
-    state_topic: "temp/asFan"
-    name: "AS Bathroom Temp"
-    unit_of_measurement: °C
-  - platform: mqtt
-    state_topic: "soilmoisture/pot1"
-    name: "Mint Plant Moisture"
-    unit_of_measurement: "pts"
-  - platform: mqtt
-    state_topic: "soilmoisture/planter1"
-    name: "Herb Planter Moisture 1"
-    unit_of_measurement: "pts"
-  - platform: mqtt
-    state_topic: "soilmoisture/planter2"
-    name: "Herb Planter Moisture 2"
-    unit_of_measurement: "pts" 
   - platform: template
     sensors:
-      dishwasher_temp:
-        friendly_name: "Dishwasher Temperature"
-        unit_of_measurement: "°C"
-        value_template: "{{25+((((((states('sensor.dishwasher_7_2') | int)/1024)*1.1)*1000)-750)/10) | round(2)}}"
       last_door_open:
         friendly_name: "Front Door Last Open"
         value_template: "{{ states.binary_sensor.front_door_open.last_updated }}"
@@ -291,10 +206,6 @@ mqtt:
   client_id: hassforapart
 
 binary_sensor:
-  - platform: mqtt
-    device_class: motion
-    name: "Living Room Motion"
-    state_topic: "sensors/motion/livingroom"
   - platform: mqtt
     name: Floorplan
     state_topic: "dummy/floorplan/sensor"
@@ -328,165 +239,6 @@ vacuum:
     send_command_topic: 'vacuum/send_command'
 
 scene:
-  - name: Living Room On Full
-    entities:
-      light.tradfri1:
-        state: on
-        brightness: 255
-      light.tradfri2:
-        state: on
-        brightness: 255
-      light.tradfri3:
-        state: on
-        brightness: 255
-      light.hue_white_lamp_2:
-        state: on
-        brightness: 255
-      light.holiday_lights:
-        state: on
-  - name: Living Room On Dim
-    entities:
-      light.tradfri1:
-        state: on
-        brightness: 50
-      light.tradfri2:
-        state: on
-        brightness: 50
-      light.tradfri3:
-        state: on
-        brightness: 50
-      light.hue_white_lamp_2:
-        state: on
-        brightness: 50
-      light.holiday_lights:
-        state: on
-  - name: Living Room Movies
-    entities:
-      light.tradfri1:
-        state: on
-        brightness: 50
-      light.tradfri2:
-        state: off
-      light.tradfri3:
-        state: on
-        brightness: 50
-      light.hue_white_lamp_2:
-        state: off
-      light.dining_room:
-        state: off
-      light.extended_color_light_1:
-        state: on
-        brightness: 128
-        rgb_color: [255,0,0]
-      light.hue_white_lamp_3:
-        state: off
-      switch.enerwave_zwnrsm1_plussmart_single_relay_switch_module_switch:
-        state: on
-      media_player.tv:
-        state: on
-  - name: Living Room Watch Chromecast
-    entities:
-      media_player.tv:
-        state: on
-      input_boolean.switch_chromecast:
-        state: on
-  - name: Living Room Play Games
-    entities:
-      media_player.tv:
-        state: on
-      input_boolean.switch_switch:
-        state: on
-  - name: Living Room Off
-    entities:
-      light.tradfri1:
-        state: off
-      light.tradfri2:
-        state: off
-      light.tradfri3:
-        state: off
-      light.hue_white_lamp_2:
-        state: off
-      light.holiday_lights:
-        state: off
-  - name: Night Time
-    entities:
-      light.tradfri1:
-        state: off
-      light.tradfri2:
-        state: off
-      light.tradfri3:
-        state: off
-      light.hue_white_lamp_2:
-        state: off
-      light.kitchen:
-        state: on
-        brightness: 100
-      light.extended_color_light_1:
-        state: off
-      light.dining_room:
-        state: off
-      switch.enerwave_zwnrsm1_plussmart_single_relay_switch_module_switch:
-        state: off
-  - name: Alexs Room Full Slow
-    entities:
-      light.alexs_room:
-        state: on
-        brightness: 255
-        transition: 900
-  - name: Alexs Room Full Immediate
-    entities:
-      light.alexs_room:
-        state: on
-        brightness: 255
-  - name: Alexs Room Off
-    entities:
-      light.alexs_room:
-        state: off
-  - name: omers Room Full Slow
-    entities:
-      light.omer_s_room:
-        state: on
-        brightness: 255
-        transition: 900
-  - name: "Omers Room Bright"
-    entities:
-      light.omer_s_room:
-        state: on
-        brightness: 255
-  - name: "Omers Room Off"
-    entities:
-      light.omer_s_room:
-        state: off
-  - name: tims Room Full Slow
-    entities:
-      light.tims_room:
-        state: on
-        brightness: 255
-        transition: 900
-  - name: "Tims Room Bright"
-    entities:
-      light.tims_room:
-        state: on
-        brightness: 255
-  - name: "Tims Room Off"
-    entities:
-      light.tims_room:
-        state: off
-  - name: adams Room Full Slow
-    entities:
-      light.adams_room:
-        state: on
-        brightness: 255
-        transition: 900
-  - name: "Adams Room Bright"
-    entities:
-      light.adams_room:
-        state: on
-        brightness: 255
-  - name: "Adams Room Off"
-    entities:
-      light.adams_room:
-        state: off
   - name: "AS Room Bedside Only"
     entities:
       light.dimmable_light_1_4:
@@ -495,11 +247,9 @@ scene:
       light.dimmable_light_1_5:
         state: on
         brightness: 128
-      switch.leviton_dz15s_1bz_decora_smart_switch_switch:
-        state: on
-      light.bathroom_1:
+      light.tradfri1:
         state: off
-      light.bathroom_2:
+      light.tradfri3:
         state: off
   - name: "AS Room Bright"
     entities:
@@ -509,29 +259,25 @@ scene:
       light.dimmable_light_1_5:
         state: on
         brightness: 200
-      light.bathroom_1:
+      light.tradfri3:
         state: on
         brightness: 255
-      switch.leviton_dz15s_1bz_decora_smart_switch_switch:
-        state: on
-      light.bathroom_2:
+      light.tradfri1:
         state: on
         brightness: 255
   - name: "AS Room Off"
     entities:
-      light.alexs_room:
-        state: off
-      switch.leviton_dz15s_1bz_decora_smart_switch_switch:
+      light.bedroom:
         state: off
   - name: Alexs Room Bulbone Slow
     entities:
-      light.bathroom_1:
+      light.tradfri1:
         state: on
         brightness: 255
         transition: 1200
   - name: Alexs Room Bulbtwo Slow
     entities:
-      light.bathroom_2:
+      light.tradfri3:
         state: on
         brightness: 255
         transition: 900
@@ -550,68 +296,13 @@ group:
     view: yes
     icon: mdi:home
     entities:
-      - group.living_room_light_scenes
-      - media_player.tv
-      - group.tv_inputs
-      - group.main_lights
-      - binary_sensor.living_room_motion
-      - camera.window_camera
-      - vacuum.roomba
-      - cover.living_room_curtains
-      - group.living_room_sensors
-  main_lights:
-    view: no
-    name: Lights
-    entities:
-      - light.dining_room
-      - light.kitchen
-      - light.extended_color_light_1
-      - switch.enerwave_zwnrsm1_plussmart_single_relay_switch_module_switch
+      - light.living_room
+      - media_player.alex_tv
   floorplan_maybe:
     view: no
     name: Floorplan
     entities:
       - binary_sensor.floorplan
-  living_room_light_scenes:
-    name: Living Room Lights
-    view: no
-    entities:
-      - scene.living_room_on_full
-      - scene.living_room_off
-      - scene.living_room_on_dim
-      - scene.living_room_movies
-      - scene.night_time
-  living_room_lights:
-    name: Living Room Lights
-    view: no
-    entities:
-      - light.tradfri3
-      - light.tradfri1
-      - light.tradfri2
-      - light.hue_white_lamp_2
-  living_room_sensors:
-    name: Sensors
-    view: no
-    entities:
-      - sensor.last_door_open
-      - sensor.alex_wall_button_16_3
-  kitchen_lights:
-    name: Kitchen Lights
-    view: no
-    entities:
-      - light.kitchen
-  dining_room_lights:
-    name: Dining Room Lights
-    view: no
-    entities:
-      - light.dining_room
-  tv_inputs:
-    name: TV Inputs
-    view: no
-    control: hidden
-    entities:
-      - input_boolean.switch_chromecast
-      - input_boolean.switch_switch
   tv_inputs_alex:
     name: Alex TV Inputs
     view: no
@@ -619,99 +310,32 @@ group:
     entities:
       - input_boolean.switch_shield
       - input_boolean.switch_alex_switch
-  omers_room:
+  office:
     view: yes
-    name: "Omer's Room"
+    name: "Office"
     entities:
-      - group.omers_room_lights
-      - group.alarm_omer
-  omers_room_lights:
-    view: no
-    name: "Omer's Room Lights"
-    control: hidden
-    entities:
-      - light.omer_s_room
-      - scene.omers_room_bright
-      - scene.omers_room_off
-  tims_room:
-    view: yes
-    name: "Tim's Room"
-    entities:
-      - group.tims_room_lights
-      - group.alarm_tim
-  tims_room_lights:
-    view: no
-    name: "Tim's Room Lights"
-    entities:
-      - light.tims_room
-      - scene.tims_room_bright
-      - scene.tims_room_off
-  adams_room:
-    view: yes
-    name: "Adam's Room"
-    entities:
-      - light.adams_room
-      - scene.adams_room_bright
-      - scene.adams_room_off
-      - group.alarm_adam
+      - light.office
   alexs_room:
     view: yes
-    name: "AS Room"
+    name: "Bedroom"
     entities:
-      - light.alexs_room
-      - light.dimmable_light_1_4
-      - light.dimmable_light_1_5
+      - light.bedroom
       - group.alarm_alex
-      - media_player.alex_tv
-      - binary_sensor.alex_wall_button_16_1
-      - sensor.alex_wall_button_16_3
       - group.tv_inputs_alex
       - group.as_room_light_scenes
   as_room_light_scenes:
-    name: "AS Room Scenes"
+    name: "Bedroom Scenes"
     entities:
       - scene.as_room_bedside_only
       - scene.as_room_bright
       - scene.as_room_off
       - switch.leviton_dz15s_1bz_decora_smart_switch_switch
-  other:
-    view: yes
-    name: "Misc"
-    entities:
-      - group.living_room_lights
-      - group.alarm_alex
-      - group.all_automations
-      - group.dishwasher
-      - automation.wake_me_up_weekend_alex
-      - media_player.55_tcl_roku_tv
-  dishwasher:
-    view: no
-    name: "Dishwasher Status"
-    entities:
-      - binary_sensor.dishwasher_7_1
-      - sensor.dishwasher_7_2
-      - switch.dishwasher_7_3
-      - sensor.dishwasher_temp
   automation:
     name: Automation
     view: yes
     entities:
       - group.all_automations
       - group.all_scripts
-  at_bathroom:
-     name: "T Bathroom"
-     view: yes
-     entities:
-       - switch.at_bathroom_fan
-       - sensor.at_bathroom_temp
-       - sensor.at_bathroom_humidity
-  as_bathroom:
-     name: "AS Bathroom"
-     view: yes
-     entities:
-       - switch.as_bathroom_fan
-       - sensor.as_bathroom_temp
-       - sensor.as_bathroom_humidity
   all_cameras:
      name: "Cameras"
      view: yes
@@ -720,24 +344,6 @@ group:
        - camera.window_camera
 
 switch:
-  - platform: command_line
-    switches:
-      tv_onoff:
-        friendly_name: "TV OnOff"
-        command_on: 'curl -X POST http://10.103.41.11:8060/keypress/PowerOn'
-        command_off: 'curl -X POST http://10.103.41.11:8060/keypress/PowerOff'
-        command_state: 'curl -s GET http://10.103.41.11:8060/query/device-info | grep power-mode | sed -e "s:<power-mode>Headless</power-mode>:OFF:" -e "s:<power-mode>PowerOn</power-mode>:ON:"'
-        value_template: '{{ value == "ON" }}'
-  - platform: mqtt
-    name: "AT Bathroom Fan"
-    command_topic: "switch/atFan/set"
-    state_topic: "switch/atFan/state"
-    icon: mdi:fan
-  - platform: mqtt
-    name: "AS Bathroom Fan"
-    command_topic: "switch/asFan/set"
-    state_topic: "switch/asFan/state"
-    icon: mdi:fan
   - platform: mqtt
     name: "Alex TV OnOff"
     state_topic: "media_player/alex/tv/state"
@@ -747,34 +353,7 @@ switch:
     state_topic: "media_player/alex/tv/mute/state"
     command_topic: "media_player/alex/tv/mute"
 
-shell_command:
-  roku_chromecast: 'curl -X POST http://10.103.41.11:8060/launch/tvinput.hdmi2'
-  roku_switch: 'curl -X POST http://10.103.41.11:8060/launch/tvinput.hdmi1'
-  roku_volumeup: 'curl -X POST http://10.103.41.11:8060/keypress/VolumeUp'
-  roku_volumedown: 'curl -X POST http://10.103.41.11:8060/keypress/VolumeDown'
-
 media_player:
-  - platform: roku
-    host: 10.103.41.11
-  - platform: universal
-    name: TV
-    children:
-      - media_player.55_tcl_roku_tv
-    commands:
-      turn_on:
-        service: switch.turn_on
-        data:
-          entity_id: switch.tv_onoff
-      turn_off:
-        service: switch.turn_off
-        data:
-          entity_id: switch.tv_onoff
-      volume_up:
-        service: shell_command.roku_volumeup
-      volume_down:
-        service: shell_command.roku_volumedown
-    attributes:
-      state: switch.tv_onoff
   - platform: universal
     name: Alex TV
     commands:
@@ -815,25 +394,11 @@ media_player:
       is_volume_muted: switch.alex_tv_mute
 
 input_boolean:
-  switch_chromecast:
-    name: Chromecast
-    initial: off
-  switch_switch:
-    name: Switch
-    initial: off
   switch_shield:
     name: Shield
     initial: off
   switch_alex_switch:
     name: Switch
-    initial: off
-  turnedon_nightlight:
-    initial: off
-  fan_turnedon:
-    initial: off
-  fan_sarah_turnedon:
-    initial: off
-  curtains_turnedon:
     initial: off
 
 light:
@@ -846,103 +411,6 @@ light:
 
 automation: !include automations.yaml
 automation old:
-  - alias: Curtains Closed at Sunny
-    trigger:
-      - platform: numeric_state
-        entity_id: sun.sun
-        value_template: "{{ state.attributes.elevation }}"
-        below: 35
-    condition:
-      condition: and
-      conditions:
-        - condition: or
-          conditions:
-            - condition: state
-              entity_id: sensor.dark_sky_icon
-              state: 'clear-day'
-            - condition: state
-              entity_id: sensor.dark_sky_icon
-              state: 'partly-cloudy-day'
-        - condition: time
-          after: "14:00:00"
-        - condition: state
-          entity_id: input_boolean.curtains_turnedon
-          state: 'off'
-    action:
-      - service: input_boolean.turn_on
-        entity_id: input_boolean.curtains_turnedon
-      - service: cover.close_cover
-        entity_id: cover.living_room_curtains
-  - alias: Curtains Open after dark
-    trigger:
-      - platform: numeric_state
-        entity_id: sun.sun
-        value_template: "{{ state.attributes.elevation }}"
-        below: 0
-    condition:
-      condition: and
-      conditions:
-        - condition: state
-          entity_id: input_boolean.curtains_turnedon
-          state: 'on'
-        - condition: time
-          after: "15:00:00"
-    action:
-      - service: input_boolean.turn_off
-        entity_id: input_boolean.curtains_turnedon
-      - service: cover.open_cover
-        entity_id: cover.living_room_curtains
-  - alias: Counter lights on with kitchen light
-    trigger:
-      - platform: state
-        entity_id: switch.leviton_dz15s_1bz_decora_smart_switch_switch
-        from: 'off'
-        to: 'on'
-    condition:
-      condition: state
-      entity_id: light.extended_color_light_1
-      state: 'off'
-    action:
-      - service: light.turn_on
-        entity_id: light.extended_color_light_1
-        data:
-          color_temp: 500
-          brightness: 255
-  - alias: Counter lights off with kitchen light
-    trigger:
-      - platform: state
-        entity_id: switch.leviton_dz15s_1bz_decora_smart_switch_switch
-        from: 'on'
-        to: 'off'
-    condition:
-      condition: and
-      conditions:
-        - condition: state
-          entity_id: light.extended_color_light_1
-          state: 'on'
-        - condition: template
-          value_template: "{{ is_state_attr('light.extended_color_light_1', 'color_temp', 500) }}"
-    action:
-      - service: light.turn_off
-        entity_id: light.extended_color_light_1
-  - alias: Chromecast Input
-    trigger:
-      - platform: state
-        entity_id: input_boolean.switch_chromecast
-        to: 'on'
-    action:
-      - service: input_boolean.turn_off
-        entity_id: input_boolean.switch_chromecast
-      - service: shell_command.roku_chromecast
-  - alias: Switch Input
-    trigger:
-      - platform: state
-        entity_id: input_boolean.switch_switch
-        to: 'on'
-    action:
-      - service: input_boolean.turn_off
-        entity_id: input_boolean.switch_switch
-      - service: shell_command.roku_switch
   - alias: Alex Switch Input
     trigger:
       - platform: state
@@ -981,56 +449,5 @@ automation old:
           topic: 'media_player/alex/piocmd'
           qos: 0
           payload: 'VOL040'
-  - alias: NightLight Off when motion stops, darkness, and lights off.
-    trigger:
-      - platform: state
-        entity_id: binary_sensor.living_room_motion
-        to: 'off'
-    condition:
-      condition: and
-      conditions:
-        - condition: state
-          entity_id: sun.sun
-          state: 'below_horizon'
-        - condition: state
-          entity_id: light.tradfri1
-          state: 'off'
-        - condition: state
-          entity_id: light.tradfri2
-          state: 'off'
-        - condition: state
-          entity_id: light.tradfri3
-          state: 'off'
-        - condition: state
-          entity_id: input_boolean.turnedon_nightlight
-          state: 'on'
-    action:
-      - service: light.turn_off
-        entity_id: light.hue_white_lamp_2
-      - service: input_boolean.turn_off
-        data:
-          entity_id: input_boolean.turnedon_nightlight
-  - alias: Nightlight when motion, darkness, and lights off.
-    trigger:
-      - platform: state
-        entity_id: binary_sensor.living_room_motion
-        to: 'on'
-    condition:
-      condition: and
-      conditions:
-        - condition: state
-          entity_id: sun.sun
-          state: 'below_horizon'
-        - condition: state
-          entity_id: group.living_room_lights
-          state: 'off'
-    action:
-      - service: light.turn_on
-        entity_id: light.hue_white_lamp_2
-        data:
-          brightness: 3
-      - service: input_boolean.turn_on
-        data:
-          entity_id: input_boolean.turnedon_nightlight
 
 script: !include scripts.yaml
