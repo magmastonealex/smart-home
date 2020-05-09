@@ -1,0 +1,89 @@
+title: Home
+views:
+  - path: default_view
+    title: default_view
+    badges: []
+    cards:
+      - type: entities
+        entities:
+          - input_boolean.switch_shield
+          - input_boolean.switch_alex_switch
+        title: Alex TV Inputs
+        show_header_toggle: false
+      - type: entities
+        entities:
+          - light.living_room
+        title: Light
+      - type: media-control
+        entity: media_player.alex_tv
+    icon: 'mdi:home'
+  - path: office
+    title: Office
+    badges: []
+    cards:
+      - type: entities
+        entities:
+          - light.office
+        title: Light
+  - path: alexs_room
+    title: Bedroom
+    badges: []
+    cards:
+      - type: entities
+        entities:
+          - sensor.alarm_alex_time
+          - input_number.alarm_alex_hour
+          - input_number.alarm_alex_minutes
+          - input_boolean.alarm_alex_weekday
+          - input_boolean.alarm_alex_weekend
+        title: Alarm Clock Test
+        show_header_toggle: false
+      - type: entities
+        entities:
+          - scene.as_room_bedside_only
+          - scene.as_room_bright
+          - scene.as_room_off
+          - switch.leviton_dz15s_1bz_decora_smart_switch_switch
+        title: Bedroom Scenes
+        show_header_toggle: true
+      - type: entities
+        entities:
+          - light.bedroom
+        title: Light
+  - path: automation
+    title: Automation
+    badges: []
+    cards:
+      - type: entities
+        entities:
+          - automation.adams_room_toggle
+          - automation.alex_room_toggle
+          - automation.alex_shield_input
+          - automation.alex_switch_input
+          - automation.dining_room_toggle
+          - automation.fan_off_when_humidity_low_again
+          - automation.fan_off_when_humidity_low_again_sarah
+          - automation.fan_on_when_humidity_high
+          - automation.fan_on_when_humidity_high_sarah
+          - automation.living_room_night_mode
+          - automation.make_a_coffee
+          - automation.omers_room_toggle
+          - automation.remote_light_strip_toggle
+          - automation.sonoff_alex_light_toggle
+          - automation.sonoff_tv_onoff
+          - automation.sonoff_tv_shield
+          - automation.sonoff_tv_switch
+          - automation.tim_room_toggle
+          - automation.wake_me_up_week_alex
+          - automation.wake_me_up_weekend_alex
+        title: all automations
+        show_header_toggle: true
+  - path: all_cameras
+    title: Cameras
+    badges: []
+    cards:
+      - type: picture-entity
+        entity: camera.door_camera
+      - type: picture-entity
+        entity: camera.window_camera
+

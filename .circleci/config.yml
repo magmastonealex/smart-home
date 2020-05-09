@@ -1,0 +1,34 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/project
+    docker:
+      - image: circleci/python:3.8.2 # every job must define an image for the docker executor and subsequent jobs may define a different image.
+    steps:
+      - checkout
+      - run:
+          name: Prep cache
+          command: sudo mkdir -P /venv; sudo chown -R circleci:circleci /venv;
+      - restore_cache:
+          key: hadep
+      - run:
+          name: Install pip dependencies
+          command: |  # use pipenv to install dependencies
+            python3.8 -m venv /venv
+            source /venv/bin/activate
+            pip3 install --pre --upgrade 'homeassistant==0.109.6'
+      - save_cache:
+          key: hadep
+          paths:
+            - "/venv"
+      - run:
+          name: HA Config Check
+          command: |
+            cd ~/project/ha-config
+            cp secrets_redacted.yaml secrets.yaml
+            source /venv/bin/activate
+            hass -c . --script check_config --info all
+      - save_cache:
+          key: hadep
+          paths:
+            - "/venv"

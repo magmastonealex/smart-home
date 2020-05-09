@@ -28,16 +28,6 @@ sensor:
               value_template: >-
                   {{ "%0.02d:%0.02d" | format(states("input_number.alarm_alex_hour") | int, states("input_number.alarm_alex_minutes") | int) }}
 
-group:
-    alarm_alex:
-        name: Alarm Clock Test
-        control: hidden
-        entities:
-            - sensor.alarm_alex_time
-            - input_number.alarm_alex_hour
-            - input_number.alarm_alex_minutes
-            - input_boolean.alarm_alex_weekday
-            - input_boolean.alarm_alex_weekend
 
 
 automation:
