@@ -8,7 +8,7 @@ jobs:
       - checkout
       - run:
           name: Prep cache
-          command: sudo mkdir -P /venv; sudo chown -R circleci:circleci /venv;
+          command: sudo mkdir -p /venv; sudo chown -R circleci:circleci /venv;
       - restore_cache:
           key: hadep
       - run:
