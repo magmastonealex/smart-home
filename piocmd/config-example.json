@@ -1,0 +1,7 @@
+{
+    "mqttServer": "",
+    "mqttUser": "",
+    "mqttPassword": "",
+    "serialPort": "/dev/ttyUSB0",
+    "baud": 9600
+}
