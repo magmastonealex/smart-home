@@ -14,6 +14,14 @@ views:
         entities:
           - light.living_room
         title: Light
+      - type: entities
+        entities:
+          - vacuum.roomba
+        title: Roomba
+      - type: entities
+        entities:
+          - sensor.last_door_open
+        title: Front Door Last Open
       - type: media-control
         entity: media_player.alex_tv
     icon: 'mdi:home'
