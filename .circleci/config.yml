@@ -11,7 +11,7 @@ jobs:
           command: sudo mkdir -p /venv; sudo chown -R circleci:circleci /venv;
       - run:
           name: Install deps
-          command: sudo apt-get update && sudo apt-get install libudev-dev libavcodec-ffmpeg-dev libavdevice-ffmpeg-dev libavfilter-ffmpeg-dev libavformat-ffmpeg-dev libavresample-ffmpeg-dev libavutil-ffmpeg-dev libpostproc-ffmpeg-dev libswresample-ffmpeg-dev libswscale-ffmpeg-dev ffmpeg
+          command: sudo apt-get update && sudo apt-get install libudev-dev libavcodec-dev libavdevice-dev libavfilter-dev libavformat-dev libavresample-dev libavutil-dev libpostproc-dev libswresample-dev libswscale-dev ffmpeg
       - restore_cache:
           key: hadep
       - run:
