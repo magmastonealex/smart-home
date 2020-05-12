@@ -40,7 +40,8 @@ google_assistant:
     - cover
   entity_config:
     media_player.living_room_big_tv:
-      name: 'Living Room TV'
+      expose: true
+      name: 'Living TV'
       room: 'Living Room'
     light.living_room:
       expose: true
@@ -51,6 +52,7 @@ google_assistant:
       name: 'Bedroom Lights'
       room: 'Bedroom'
     media_player.alex_tv:
+      expose: true
       name: 'Bedroom TV'
       room: 'Bedroom'
     vacuum.roomba:
@@ -373,6 +375,30 @@ media_player:
         service: switch.turn_off
         data:
           entity_id: switch.bigtv_onoff
+      volume_up:
+        service: mqtt.publish
+        data:
+          topic: 'media_player/livingroom/piocmd'
+          qos: 0
+          payload: 'VOLUP5'
+      volume_down:
+        service: mqtt.publish
+        data:
+          topic: 'media_player/livingroom/piocmd'
+          qos: 0
+          payload: 'VOLDW5'
+      volume_mute:
+        service: mqtt.publish
+        data:
+          topic: 'media_player/livingroom/tv/mute'
+          qos: 0
+          payload: 'ON'
+      volume_set:
+        service: mqtt.publish
+        data_template:
+          topic: 'media_player/livingroom/tv/volume'
+          qos: 0
+          payload: '{{ volume_level }}'
     attributes:
       state: switch.bigtv_onoff
 
