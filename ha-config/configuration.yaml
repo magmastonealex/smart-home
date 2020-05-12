@@ -69,7 +69,15 @@ google_assistant:
     group.all_automations:
       expose: false
 
+wake_on_lan:
 cover:
+
+samsungtv:
+  - host: '10.102.40.171'
+    turn_on_action:
+      - service: wake_on_lan.send_magic_packet
+        data:
+          mac: "A4:30:7A:2F:67:7D"
 
 panel_iframe:
   nagios:
