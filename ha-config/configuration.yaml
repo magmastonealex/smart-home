@@ -72,12 +72,6 @@ google_assistant:
 wake_on_lan:
 cover:
 
-samsungtv:
-  - host: '10.102.40.171'
-    turn_on_action:
-      - service: wake_on_lan.send_magic_packet
-        data:
-          mac: "A4:30:7A:2F:67:7D"
 
 panel_iframe:
   nagios:
@@ -353,7 +347,6 @@ media_player:
     attributes:
       state: switch.alex_tv_onoff
       is_volume_muted: switch.alex_tv_mute
-
 input_boolean:
   switch_shield:
     name: Shield
