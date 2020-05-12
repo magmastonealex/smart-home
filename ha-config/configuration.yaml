@@ -39,7 +39,7 @@ google_assistant:
     - media_player
     - cover
   entity_config:
-    media_player.alex_tv:
+    media_player.living_room_big_tv:
       name: 'Living Room TV'
       room: 'Living Room'
     light.living_room:
@@ -49,6 +49,9 @@ google_assistant:
     light.bedroom:
       expose: true
       name: 'Bedroom Lights'
+      room: 'Bedroom'
+    media_player.alex_tv:
+      name: 'Bedroom TV'
       room: 'Bedroom'
     vacuum.roomba:
       expose: true
@@ -307,6 +310,18 @@ switch:
     name: "Alex TV Mute"
     state_topic: "media_player/alex/tv/mute/state"
     command_topic: "media_player/alex/tv/mute"
+  - platform: command_line
+    scan_interval: 5
+    switches:
+      bigtv_onoff:
+        friendly_name: "TV Power State"
+        command_off: 'curl -X POST http://10.102.40.20:8089/turnOff'
+        command_on: 'curl -X POST http://10.102.40.20:8089/turnOn'
+        command_state: 'curl http://10.102.40.20:8089/status'
+        value_template: '{{ value == "ON }}'
+
+shell_command:
+  bigtv_hdmi1: 'curl -X POST http://10.102.40.20:8089/input?input=HDMI1'
 
 media_player:
   - platform: universal
@@ -347,6 +362,20 @@ media_player:
     attributes:
       state: switch.alex_tv_onoff
       is_volume_muted: switch.alex_tv_mute
+  - platform: universal
+    name: Living Room Big TV
+    commands:
+      turn_on:
+        service: switch.turn_on
+        data:
+          entity_id: switch.bigtv_onoff
+      turn_off:
+        service: switch.turn_off
+        data:
+          entity_id: switch.bigtv_onoff
+    attributes:
+      state: switch.bigtv_onoff
+
 input_boolean:
   switch_shield:
     name: Shield

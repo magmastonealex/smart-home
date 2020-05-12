@@ -23,7 +23,7 @@ views:
           - sensor.last_door_open
         title: Front Door Last Open
       - type: media-control
-        entity: media_player.alex_tv
+        entity: media_player.living_room_big_tv
     icon: 'mdi:home'
   - path: office
     title: Office
@@ -46,6 +46,8 @@ views:
           - input_boolean.alarm_alex_weekend
         title: Alarm Clock Test
         show_header_toggle: false
+      - type: media-control
+        entity: media_player.alex_tv
       - type: entities
         entities:
           - scene.as_room_bedside_only
