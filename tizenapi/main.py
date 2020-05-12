@@ -75,4 +75,4 @@ def setInput():
         requests.post(API_COMMAND, json=set_input_command, headers=REQUEST_HEADERS)
         return "OK"
 
-app.run()
+app.run(host='0.0.0.0')
