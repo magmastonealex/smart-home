@@ -318,7 +318,7 @@ switch:
         command_off: 'curl -X POST http://10.102.40.20:8089/turnOff'
         command_on: 'curl -X POST http://10.102.40.20:8089/turnOn'
         command_state: 'curl http://10.102.40.20:8089/status'
-        value_template: '{{ value == "ON }}'
+        value_template: '{{ value == "ON" }}'
 
 shell_command:
   bigtv_hdmi1: 'curl -X POST http://10.102.40.20:8089/input?input=HDMI1'
