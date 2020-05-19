@@ -326,6 +326,14 @@ shell_command:
   bigtv_hdmi1: 'curl -X POST http://10.102.40.20:8089/input?input=HDMI1'
 
 media_player:
+  - platform: yamaha
+    name: "Living Room AVR"
+    host: "10.102.40.172"
+    zone_ignore:
+      - "Zone 2"
+    source_names:
+      HDMI2: "Shield"
+      HDMI3: "Switch"
   - platform: universal
     name: Alex TV
     commands:
