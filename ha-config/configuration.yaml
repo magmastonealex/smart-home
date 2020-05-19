@@ -396,41 +396,48 @@ media_player:
       is_volume_muted: switch.alex_tv_mute
   - platform: universal
     name: Living Room Big TV
+    state_template: >
+      {% if is_state('switch.bigtv_onoff', 'off') and is_state('media_player.living_room_avr', 'off') %}
+      off
+      {% else %}
+      {{ states('media_player.living_room_avr') }}
+      {% endif %}
     commands:
       turn_on:
-        service: switch.turn_on
+        service: script.turn_on
         data:
-          entity_id: switch.bigtv_onoff
+          entity_id: script.livingroom_tv_on
       turn_off:
-        service: switch.turn_off
+        service: script.turn_on
         data:
-          entity_id: switch.bigtv_onoff
+          entity_id: script.livingroom_tv_off
       volume_up:
-        service: mqtt.publish
+        service: media_player.volume_up
         data:
-          topic: 'media_player/livingroom/piocmd'
-          qos: 0
-          payload: 'VOLUP5'
+          entity_id: media_player.living_room_avr
       volume_down:
-        service: mqtt.publish
+        service: media_player.volume_down
         data:
-          topic: 'media_player/livingroom/piocmd'
-          qos: 0
-          payload: 'VOLDW5'
+          entity_id: media_player.living_room_avr
       volume_mute:
-        service: mqtt.publish
+        service: media_player.volume_mute
         data:
-          topic: 'media_player/livingroom/tv/mute'
-          qos: 0
-          payload: 'ON'
-      volume_set:
-        service: mqtt.publish
+          entity_id: media_player.living_room_avr
+      select_source:
+        service: media_player.select_source
         data_template:
-          topic: 'media_player/livingroom/tv/volume'
-          qos: 0
-          payload: '{{ volume_level }}'
+          entity_id: media_player.living_room_avr
+          source: '{{ source }}'
+      volume_set:
+        service: media_player.volume_set
+        data_template:
+          entity_id: media_player.living_room_avr
+          volume_level: '{{ volume_level }}'
     attributes:
-      state: switch.bigtv_onoff
+      is_volume_muted: media_player.living_room_avr | is_volume_muted
+      volume_level: media_player.living_room_avr | volume_level
+      source: media_player.living_room_avr | source
+      source_list: media_player.living_room_avr | source_list
 
 input_boolean:
   switch_shield:
@@ -489,4 +496,21 @@ automation old:
           qos: 0
           payload: 'VOL040'
 
-script: !include scripts.yaml
+script:
+  livingroom_tv_on:
+    sequence:
+      - service: media_player.turn_on
+        data:
+          entity_id: media_player.living_room_avr
+      - service: switch.turn_on
+        data:
+          entity_id: switch.bigtv_onoff
+  livingroom_tv_off:
+    sequence:
+      - service: media_player.turn_off
+        data:
+          entity_id: media_player.living_room_avr
+      - service: switch.turn_off
+        data:
+          entity_id: switch.bigtv_onoff
+ 
