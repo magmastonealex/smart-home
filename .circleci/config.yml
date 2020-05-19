@@ -13,7 +13,7 @@ jobs:
           name: Install deps
           command: sudo apt-get update && sudo apt-get install libudev-dev libavcodec-dev libavdevice-dev libavfilter-dev libavformat-dev libavresample-dev libavutil-dev libpostproc-dev libswresample-dev libswscale-dev ffmpeg
       - restore_cache:
-          key: hadep
+          key: hapredep
       - run:
           name: Install pip dependencies
           command: |  # use pipenv to install dependencies
@@ -21,9 +21,11 @@ jobs:
             source /venv/bin/activate
             pip3 install --pre --upgrade 'homeassistant==0.109.6'
       - save_cache:
-          key: hadep
+          key: hapredep
           paths:
             - "/venv"
+      - restore_cache:
+          key: hadepdep
       - run:
           name: HA Config Check
           command: |
@@ -32,6 +34,6 @@ jobs:
             source /venv/bin/activate
             hass -c . --script check_config --info all
       - save_cache:
-          key: hadep
+          key: hadepdep
           paths:
-            - "/venv"
+            - "/project/deps"
