@@ -15,7 +15,7 @@ input_boolean.switch_alex_switch:
 input_boolean.switch_shield:
   icon: mdi:android-head
 light.kitchen:
-  friendly_name: Kitchen Stove Light
+  friendly_name: 'Pendant Lights'
 group.all_automations:
   hidden: false
 binary_sensor.floorplan:

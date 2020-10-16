@@ -13,18 +13,42 @@ views:
       - type: entities
         entities:
           - light.living_room
+          - light.kitchen_lights
+          - light.kitchen
+          - light.kitchen_cabinet_lights 
         title: Light
       - type: entities
         entities:
           - vacuum.roomba
         title: Roomba
+      - type: thermostat
+        entity: climate.home
+      - type: glance
+        entities:
+          - sensor.home_temperature
+          - sensor.home_humidity
       - type: entities
         entities:
           - sensor.last_door_open
-        title: Front Door Last Open
+          - binary_sensor.entryway_motion
+        title: Entryway
       - type: media-control
         entity: media_player.living_room_big_tv
     icon: 'mdi:home'
+  - path: alarm
+    title: Alarm
+    badges: []
+    cards:
+      - type: alarm-panel
+        name: 'Home Alarm'
+        entity: alarm_control_panel.home_alarm
+      - type: picture-entity
+        entity: camera.door_camera
+      - type: entities
+        entities:
+          - sensor.last_door_open
+          - binary_sensor.entryway_motion
+        title: 'Entryway Sensors'
   - path: office
     title: Office
     badges: []

@@ -28,7 +28,7 @@ homeassistant:
       api_password: !secret api_password
 # Show links to resources in log and frontend
 #introduction:
-
+mobile_app:
 stream:
 
 google_assistant:
@@ -47,6 +47,10 @@ google_assistant:
       expose: true
       name: 'Living Room Lights'
       room: 'Living Room'
+    light.kitchen_lights:
+      expose: true
+      name: 'Kitchen Lights'
+      room: 'Kitchen'
     light.bedroom:
       expose: true
       name: 'Bedroom Lights'
@@ -71,6 +75,9 @@ google_assistant:
       expose: true
       name: 'Reading Lights'
       room: 'Bedroom'
+    climate.home:
+      expose: true
+      name: 'Thermostat'
     group.all_automations:
       expose: false
 
@@ -112,6 +119,25 @@ recorder:
   purge_keep_days: 7
 history:
 
+notify:
+  - name: thermostat
+    platform: ecobee
+  - name: twiliosms
+    platform: twilio_sms
+    from_number: !secret twilio_sender
+
+alarm_control_panel:
+  - platform: manual_mqtt
+    name: 'Home Alarm'
+    code: !secret alarm_code
+    state_topic: 'alarm/panel/status'
+    command_topic: 'alarm/panel/command'
+    pending_time: 10
+    delay_time: 10
+    trigger_time: 5
+    disarmed:
+      trigger_time: 0 
+
 camera:
   - platform: mjpeg
     name: "Window Camera"
@@ -129,6 +155,10 @@ http:
   # api_password: !secret http_password
   # Uncomment this if you are using SSL/TLS, running in Docker container, etc.
   # base_url: example.duckdns.org:8123
+
+twilio:
+  account_sid: !secret twilio_sid
+  auth_token: !secret twilio_key
 
 device_tracker:
 
@@ -223,6 +253,9 @@ binary_sensor:
     force_update: true
     name: "Front Door Open"
     state_topic: "sensors/door/frontdoor"
+  - platform: mqtt
+    name: "Entryway Motion"
+    state_topic: "sensors/motion/livingroom"
 
 vacuum:
   - platform: mqtt
@@ -454,7 +487,14 @@ light:
     command_topic: 'lights/fairy/set'
     payload_on: 'ON'
     payload_off: 'OFF'
-
+  - platform: switch
+    name: 'Kitchen Cabinet Lights'
+    entity_id: switch.leviton_dz15s_1bz_decora_smart_switch_switch
+  - platform: group
+    name: 'Kitchen Lights'
+    entities:
+      - light.kitchen_cabinet_lights
+      - light.kitchen
 automation: !include automations.yaml
 automation old:
   - alias: Alex Switch Input

@@ -220,3 +220,27 @@
   - data:
       entity_id: light.extended_color_light_1
     service: light.toggle
+- id: 'alarm_notifications'
+  alias: 'Alarm Notifications'
+  trigger:
+    - platform: state
+      entity_id: alarm_control_panel.home_alarm
+      to: 'triggered'
+  action:
+    - service: notify.twiliosms
+      data:
+        message: "Alarm has been triggered"
+        target: !secret twilio_dest
+- id: 'alarm_trigger'
+  alias: 'Alarm Triggers'
+  trigger:
+    - platform: mqtt
+      topic: 'sensors/door/frontdoor'
+      payload: 'ON'
+  condition:
+    - condition: state
+      entity_id: alarm_control_panel.home_alarm
+      state: 'armed_away'
+  action:
+    - service: alarm_control_panel.alarm_trigger
+      entity_id: alarm_control_panel.home_alarm
