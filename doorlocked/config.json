@@ -1,0 +1,5 @@
+{
+    "imgurl": "http://root:ismart12@10.102.40.20:8084/cgi-bin/currentpic.cgi",
+    "retryTimes": 5,
+    "port": 8088
+}

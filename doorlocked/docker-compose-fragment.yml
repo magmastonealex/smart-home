@@ -1,0 +1,5 @@
+doorlocked:
+  image: aroth-doorlocked:1.0.0
+  volumes:
+    - ./doorconfig:/config
+
