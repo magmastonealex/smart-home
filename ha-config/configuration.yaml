@@ -2,8 +2,8 @@ homeassistant:
   # Name of the location where Home Assistant is running
   name: Home
   # Location required to calculate the time the sun rises and sets
-  latitude: 43.4653258
-  longitude: -80.5414864
+  latitude: 43.46455441
+  longitude: -80.5297177
   # Impacts weather/sunrise data (altitude above sea level in meters)
   elevation: 329
   # metric for Metric, imperial for Imperial
@@ -47,6 +47,10 @@ google_assistant:
       expose: true
       name: 'Living Room Lights'
       room: 'Living Room'
+    switch.enerwave_zwnrsm1_plussmart_single_relay_switch_module_switch:
+      expose: true
+      name: 'Christmas Lights'
+      room: 'Living Room'
     light.kitchen_lights:
       expose: true
       name: 'Kitchen Lights'
@@ -88,20 +92,24 @@ cover:
 panel_iframe:
   nagios:
     title: 'Nagios'
-    url: 'http://10.102.40.20:8086/nagios/cgi-bin/status.cgi?host=all'
+    url: 'https://nagios.svcs.alexroth.me/nagios/cgi-bin/status.cgi?host=all'
     icon: 'mdi:bell-alert'
   shops:
     title: 'Shopping Lists'
-    url: 'http://10.102.40.20:1323'
+    url: 'https://shoplist.svcs.alexroth.me'
     icon: 'mdi:shopify'
   torrents:
     title: 'Torrents'
-    url: 'http://10.102.40.20:8083'
+    url: 'https://transmission.svcs.alexroth.me'
     icon: 'mdi:cloud-download'
   torfiles:
     title: 'Torrents (Files)'
-    url: 'http://10.102.40.20:8085'
+    url: 'http://10.100.0.3:8087/finishedfiles'
     icon: 'mdi:download-network'
+  videos:
+    title: 'Recorded Videos'
+    url: 'http://10.100.0.3:8087/videorecordings'
+    icon: 'mdi:videocam'
 
 # Enables the frontend
 frontend: !include frontend.yaml
@@ -227,7 +235,9 @@ sensor:
         friendly_name: "Front Door Last Open"
         value_template: "{{ states.binary_sensor.front_door_open.last_updated }}"
         device_class: timestamp
-
+  - platform: command_line
+    name: 'Door Lock'
+    command: 'curl http://doorlocked:8088/status'
 
 # Text to speech
 tts:

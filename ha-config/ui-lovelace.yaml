@@ -15,7 +15,8 @@ views:
           - light.living_room
           - light.kitchen_lights
           - light.kitchen
-          - light.kitchen_cabinet_lights 
+          - light.kitchen_cabinet_lights
+          - switch.enerwave_zwnrsm1_plussmart_single_relay_switch_module_switch 
         title: Light
       - type: entities
         entities:
@@ -30,6 +31,7 @@ views:
       - type: entities
         entities:
           - sensor.last_door_open
+          - sensor.door_lock
           - binary_sensor.entryway_motion
         title: Entryway
       - type: media-control

@@ -220,27 +220,50 @@
   - data:
       entity_id: light.extended_color_light_1
     service: light.toggle
-- id: 'alarm_notifications'
-  alias: 'Alarm Notifications'
+- id: alarm_notifications
+  alias: Alarm Notifications
   trigger:
-    - platform: state
-      entity_id: alarm_control_panel.home_alarm
-      to: 'triggered'
+  - platform: state
+    entity_id: alarm_control_panel.home_alarm
+    to: triggered
   action:
-    - service: notify.twiliosms
-      data:
-        message: "Alarm has been triggered"
-        target: !secret twilio_dest
-- id: 'alarm_trigger'
-  alias: 'Alarm Triggers'
+  - service: notify.twiliosms
+    data:
+      message: Alarm has been triggered
+      target: !secret twilio_dest
+- id: alarm_trigger
+  alias: Alarm Triggers
   trigger:
-    - platform: mqtt
-      topic: 'sensors/door/frontdoor'
-      payload: 'ON'
+  - platform: mqtt
+    topic: sensors/door/frontdoor
+    payload: 'ON'
   condition:
-    - condition: state
-      entity_id: alarm_control_panel.home_alarm
-      state: 'armed_away'
+  - condition: state
+    entity_id: alarm_control_panel.home_alarm
+    state: armed_away
   action:
-    - service: alarm_control_panel.alarm_trigger
-      entity_id: alarm_control_panel.home_alarm
+  - service: alarm_control_panel.alarm_trigger
+    entity_id: alarm_control_panel.home_alarm
+- id: '1605985666093'
+  alias: Lights On at Dusk
+  description: ''
+  trigger:
+  - event: sunset
+    offset: -00:45:00
+    platform: sun
+  condition:
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: device_tracker.oneplus_a6003
+      state: home
+    - condition: state
+      entity_id: device_tracker.galaxy_s10
+      state: home
+    - condition: state
+      entity_id: device_tracker.oneplus6
+      state: home
+  action:
+  - data: {}
+    entity_id: switch.enerwave_zwnrsm1_plussmart_single_relay_switch_module_switch
+    service: switch.turn_on

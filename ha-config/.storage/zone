@@ -1,0 +1,17 @@
+{
+    "data": {
+        "items": [
+            {
+                "icon": "mdi:briefcase",
+                "id": "alex_s_office",
+                "latitude": 43.4513413503448,
+                "longitude": -80.51390647888185,
+                "name": "Alex's Office",
+                "passive": false,
+                "radius": 251.19513335101013
+            }
+        ]
+    },
+    "key": "zone",
+    "version": 1
+}
