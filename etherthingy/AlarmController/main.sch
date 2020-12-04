@@ -7486,8 +7486,8 @@ Source: http://www.osram.convergy.de/</description>
 <wire x1="22.86" y1="10.16" x2="15.24" y2="10.16" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="J9" gate="G$1" pin="6"/>
-<wire x1="0" y1="-15.24" x2="-7.62" y2="-15.24" width="0.1524" layer="91"/>
+<pinref part="J9" gate="G$1" pin="2"/>
+<wire x1="0" y1="-10.16" x2="-7.62" y2="-10.16" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="SR_DAT" class="0">
@@ -7507,8 +7507,8 @@ Source: http://www.osram.convergy.de/</description>
 <wire x1="22.86" y1="27.94" x2="15.24" y2="27.94" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="J9" gate="G$1" pin="2"/>
-<wire x1="0" y1="-10.16" x2="-7.62" y2="-10.16" width="0.1524" layer="91"/>
+<pinref part="J9" gate="G$1" pin="6"/>
+<wire x1="0" y1="-15.24" x2="-7.62" y2="-15.24" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="DB2_RXI" class="0">
@@ -7537,27 +7537,27 @@ Source: http://www.osram.convergy.de/</description>
 </net>
 <net name="DB1_INT" class="0">
 <segment>
-<pinref part="U2" gate="G$1" pin="PB02(AIN10/SER5:0)"/>
-<wire x1="-53.34" y1="30.48" x2="-66.04" y2="30.48" width="0.1524" layer="91"/>
-<label x="-66.04" y="30.48" size="1.016" layer="95" rot="R180" xref="yes"/>
-</segment>
-<segment>
 <pinref part="J8" gate="G$1" pin="2"/>
 <wire x1="-111.76" y1="-27.94" x2="-104.14" y2="-27.94" width="0.1524" layer="91"/>
 <wire x1="-104.14" y1="-27.94" x2="-104.14" y2="-22.86" width="0.1524" layer="91"/>
 <label x="-104.14" y="-22.86" size="1.016" layer="95" rot="R90" xref="yes"/>
 </segment>
-</net>
-<net name="DB2_INT" class="0">
 <segment>
 <pinref part="U2" gate="G$1" pin="PB03(AIN11/SER5:1)"/>
 <wire x1="-53.34" y1="27.94" x2="-66.04" y2="27.94" width="0.1524" layer="91"/>
 <label x="-66.04" y="27.94" size="1.016" layer="95" rot="R180" xref="yes"/>
 </segment>
+</net>
+<net name="DB2_INT" class="0">
 <segment>
 <pinref part="J10" gate="G$1" pin="2"/>
 <wire x1="-111.76" y1="-50.8" x2="-111.76" y2="-48.26" width="0.1524" layer="91"/>
 <label x="-111.76" y="-48.26" size="1.016" layer="95" rot="R90" xref="yes"/>
+</segment>
+<segment>
+<pinref part="U2" gate="G$1" pin="PB02(AIN10/SER5:0)"/>
+<wire x1="-53.34" y1="30.48" x2="-66.04" y2="30.48" width="0.1524" layer="91"/>
+<label x="-66.04" y="30.48" size="1.016" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="N$3" class="0">
