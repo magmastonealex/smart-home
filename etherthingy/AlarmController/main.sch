@@ -7102,7 +7102,7 @@ Source: http://www.osram.convergy.de/</description>
 <wire x1="137.16" y1="43.18" x2="139.7" y2="43.18" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="N$18" class="0">
+<net name="ACTLED" class="0">
 <segment>
 <pinref part="J2" gate="G$1" pin="7"/>
 <wire x1="213.36" y1="33.02" x2="213.36" y2="35.56" width="0.1524" layer="91"/>
@@ -7230,7 +7230,7 @@ Source: http://www.osram.convergy.de/</description>
 <junction x="182.88" y="60.96"/>
 </segment>
 </net>
-<net name="N$29" class="0">
+<net name="PHYLINK" class="0">
 <segment>
 <pinref part="U1" gate="G$1" pin="LINKLED"/>
 <wire x1="127" y1="38.1" x2="129.54" y2="38.1" width="0.1524" layer="91"/>
