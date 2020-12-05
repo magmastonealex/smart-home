@@ -161,10 +161,7 @@
 <hole x="35.56" y="5.334" drill="3.048"/>
 <hole x="25.4" y="25.4" drill="3.048"/>
 <hole x="3.937" y="78.359" drill="3.048"/>
-<wire x1="44.45" y1="90.17" x2="44.45" y2="0" width="0.0762" layer="20"/>
-<wire x1="44.45" y1="0" x2="0" y2="0" width="0.0762" layer="20"/>
-<wire x1="0" y1="0" x2="0" y2="90.17" width="0.0762" layer="20"/>
-<wire x1="0" y1="90.17" x2="44.45" y2="90.17" width="0.0762" layer="20"/>
+<wire x1="0" y1="0" x2="0" y2="88.9" width="0.0762" layer="20"/>
 <text x="36.83" y="36.83" size="1.778" layer="25">DB2</text>
 <text x="36.83" y="52.07" size="1.778" layer="25">DB1</text>
 <text x="36.83" y="68.58" size="1.778" layer="25">DB3</text>
@@ -173,6 +170,10 @@
 <hole x="39.37" y="86.36" drill="3.048"/>
 <text x="25.908" y="3.048" size="1.27" layer="25">PWR
  OK</text>
+<wire x1="0" y1="0" x2="44.45" y2="0" width="0.0762" layer="20"/>
+<wire x1="44.45" y1="0" x2="44.45" y2="90.17" width="0.0762" layer="20"/>
+<wire x1="44.45" y1="90.17" x2="0" y2="90.17" width="0.0762" layer="20"/>
+<wire x1="0" y1="90.17" x2="0" y2="88.9" width="0.0762" layer="20"/>
 </plain>
 <libraries>
 <library name="SparkFun-Capacitors">
