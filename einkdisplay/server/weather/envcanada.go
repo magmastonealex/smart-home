@@ -4,6 +4,8 @@ import (
 	"encoding/xml"
 	"fmt"
 	"net/http"
+	"sort"
+	"time"
 
 	"golang.org/x/net/html/charset"
 )
@@ -18,10 +20,28 @@ type conditionsDocument struct {
 	Temperature float32 `xml:"temperature"`
 }
 
+func (c conditionsDocument) toConditions(observedAt *time.Time) Conditions {
+	return Conditions{
+		ObservedAt:      observedAt,
+		TextDescription: c.Condition,
+		IconCode:        c.IconCode,
+		Temperature:     c.Temperature,
+	}
+}
+
 type hourlyForecast struct {
 	conditionsDocument
 	XMLName     xml.Name `xml:"hourlyForecast"`
 	DateTimeUTC string   `xml:"dateTimeUTC,attr"`
+}
+
+func (h hourlyForecast) toConditions() (Conditions, error) {
+	t, err := time.Parse("200601021504", h.DateTimeUTC)
+	if err != nil {
+		return Conditions{}, err
+	}
+
+	return h.conditionsDocument.toConditions(&t), nil
 }
 
 type currentConditions struct {
@@ -32,6 +52,25 @@ type currentConditions struct {
 		Zone      string   `xml:"zone,attr"`
 		TimeStamp string   `xml:"timeStamp"`
 	} `xml:"dateTime"`
+}
+
+func (c currentConditions) toConditions() (Conditions, error) {
+
+	var realTime *time.Time
+	for _, v := range c.DateTime {
+		if v.Zone == "UTC" {
+			t, err := time.Parse("20060102150405", v.TimeStamp)
+			if err == nil {
+				realTime = &t
+			}
+		}
+	}
+
+	if realTime == nil {
+		return Conditions{}, fmt.Errorf("failed to parse timestamp")
+	}
+
+	return c.conditionsDocument.toConditions(realTime), nil
 }
 
 type parsedDocument struct {
@@ -64,6 +103,26 @@ func (e *EnvCanadaWeather) FetchWeather() (*WeatherState, error) {
 		return nil, fmt.Errorf("failed parsing body: %w", err)
 	}
 
-	fmt.Printf("res: %+v\n", parsed)
-	return nil, nil
+	current, err := parsed.CurrentConditions.toConditions()
+	if err != nil {
+		return nil, fmt.Errorf("failed parsing current conditions: %w", err)
+	}
+
+	hourly := make([]Conditions, 0)
+	for _, v := range parsed.HourlyForecastGroup.HourlyForecast {
+		hourlyConditions, err := v.toConditions()
+		if err != nil {
+			return nil, fmt.Errorf("failed parsing hourly conditions: %w", err)
+		}
+		hourly = append(hourly, hourlyConditions)
+	}
+
+	sort.Slice(hourly, func(i, j int) bool {
+		return hourly[i].ObservedAt.Unix() < hourly[j].ObservedAt.Unix()
+	})
+
+	return &WeatherState{
+		Current:   current,
+		NextHours: hourly,
+	}, nil
 }

@@ -5,7 +5,7 @@ import (
 )
 
 type WeatherProvider interface {
-	FetchWeather() (WeatherState, error)
+	FetchWeather() (*WeatherState, error)
 }
 
 type WeatherState struct {
@@ -17,5 +17,5 @@ type Conditions struct {
 	ObservedAt      *time.Time
 	TextDescription string
 	IconCode        string
-	Temperature     int
+	Temperature     float32
 }
