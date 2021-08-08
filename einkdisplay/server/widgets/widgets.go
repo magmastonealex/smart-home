@@ -1,3 +1,7 @@
+// Package widgets implements the widgets available on the dashboard.
+// There's a bunch of refactoring work to be done.
+// In particular, it would be nice to wrap a gg.Context,
+// and be able to write the widgets without offsetting.
 package widgets
 
 import "github.com/fogleman/gg"
