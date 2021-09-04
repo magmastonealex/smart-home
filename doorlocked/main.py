@@ -43,84 +43,33 @@ def process_image_for_state(img):
     annotated = img.copy()
 
     # Find
-    dictionary = cv.aruco.Dictionary_get(cv.aruco.DICT_6X6_50)
+    dictionary = cv.aruco.Dictionary_get(cv.aruco.DICT_ARUCO_ORIGINAL)
     parameters =  cv.aruco.DetectorParameters_create()
     markerCorners, markerIds, rejectedCandidates = cv.aruco.detectMarkers(img, dictionary, parameters=parameters)
     cv.aruco.drawDetectedMarkers(annotated, markerCorners, markerIds)
-    
-    foundTop = -1
+    print(markerIds)
+    markerIdsFin = {}
     for idx, markerId in enumerate(markerIds):
-        if markerId[0] == 20:
-            foundTop = idx
+        markerIdsFin[markerId[0]] = True
+    print(markerIdsFin)
+    return markerIdsFin
 
-    if foundTop == -1:
-        print("Could not find top marker.")
-        err = RuntimeError("Failed to find top marker")
-        err.image = annotated
-        raise err
-
-    # Find our top-left and bottom-right corners of our cropped image.
-    topCorner = markerCorners[foundTop][0][3]
-    
-    synthCorners = np.array([[0, 0], [500, 0], [500, 500], [0, 500]], np.float32)
-    transformation = cv.getPerspectiveTransform(markerCorners[foundTop][0], synthCorners)
-    resImg = cv.warpPerspective(img, transformation, (900, 1600))
-
-    # Crop the image based on those corners.
-    crop_img = resImg[710:1256, 0:542]
-
-    # Convert the image to black and white based on the corner of the image - this will always be "white" or the closest thing to.    
-    grayImage = cv.cvtColor(crop_img, cv.COLOR_BGR2GRAY)
-    _, res = cv.threshold(grayImage, 30, 255, cv.THRESH_BINARY)
-
-    # Find contours in the image. There will be several found, but most are overlapping...
-    contours, hierarchy = cv.findContours(res, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-    # Draw those contours back onto the image to "harden" the lines.
-    cv.drawContours(res, contours, -1, 255, 3)
-
-    # Use the "hardened" contours to find the actual lock contour.
-    contours, hierarchy = cv.findContours(res, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-
-    largestContour = None
-    largestContourArea = -1
-    for idx, contour in enumerate(contours):
-        area = cv.contourArea(contour)
-        if area > largestContourArea:
-            largestContour = idx
-            largestContourArea = area
-
-    if largestContour is None:
-        raise RuntimeError('No contours found')
-
-    if largestContourArea < 80:
-        err = RuntimeError('Largest contour not large enough to be lock.')
-        cv.drawContours(crop_img, contours, -1, (255,0,0), cv.FILLED)
-        err.image = crop_img
-        raise err
-
-    # Fit a line through the largest contour to determine which direction it's pointing.
-    [vx,vy,x,y] = cv.fitLine(contours[largestContour], cv.DIST_L2,0,0.01,0.01)
-
-    # Annotate that line on the image for later display.
-    rows,cols = crop_img.shape[:2]
-    lefty = int((-x*vy/vx) + y)
-    righty = int(((cols-x)*vy/vx)+y)
-    cv.line(crop_img,(cols-1,righty),(0,lefty),(0,255,0),2)
-
-    slope = vx/vy
-    if slope > 0 and slope < 0.60:
-        return ('locked', crop_img)
-    else:
-        return ('unlocked', crop_img)
-
+expectedMarkers = [864, 1004, 40, 245, 844]
 
 def get_lock_state_once():
     try :
         z = requests.get(stillimg_url, timeout=5)
         image = np.frombuffer(z.content, np.uint8)
         image = cv.imdecode(image, cv.IMREAD_COLOR)
-        state = process_image_for_state(image)
-        return state
+        foundMarkers = process_image_for_state(image)
+        numFound = 0
+        for k, v in foundMarkers.items():
+            if k in expectedMarkers:
+                numFound += 1
+        if numFound > 2:
+            return 'closed'
+        else:
+            return 'open'
     except Exception as e:
         print(e)
         img = np.zeros((100, 100, 1), np.uint8)
@@ -136,20 +85,17 @@ def getStatus():
             for i in range(0, total_runs):
                 state = get_lock_state_once()
                 if state[0] not in states_dict:
-                    states_dict[state[0]] = {
-                        "count": 1,
-                        "image": state[1]
-                    }
+                    states_dict[state] = 1
                 else:
-                    states_dict[state[0]]['count'] += 1
+                    states_dict[state] += 1
                 time.sleep(0.100)
 
             winning_state = None
             winning_state_count = -1
             for k, v in states_dict.items():
-                if v["count"] > winning_state_count:
+                if v > winning_state_count:
                     winning_state = k
-                    winning_state_count = v["count"]
+                    winning_state_count = v
 
             confidence = float(winning_state_count)/float(total_runs)
             print(winning_state)
