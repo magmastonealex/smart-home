@@ -1,0 +1,116 @@
+- EVL-4 uses xmega64d4. Lock bits are set, but JTAG is enabled - can re-program.
+- Other board uses attiny441.
+- Communication is over i2c.
+- Seems like return values are 8 bytes of ANALOG data. The data is then interpreted by the mainboard.
+- 2nd board lives at 0x20.
+- 24LC512 eeprom on evl-4 at 0x50.
+- Seems to poll 0x00 -> module info
+- 0x10 -> return analog data
+- 0x30 - buzzer?
+- 0x31 - pgm output?
+
+Programming header pinout (from top)
+- gnd
+- N/C
+- VCC
+- reset/PDI clock
+- PDI data
+
+
+these are unknown:
+write to 0x20 ack data: 0x20 0x00 
+write to 0x20 ack data: 0x28 0x00 
+write to 0x20 ack data: 0x21 0x00 
+write to 0x20 ack data: 0x29 0x00
+but repetitive.
+
+- asix ax88796blf is Ethernet PHY
+
+- avr-uip stack
+- https://github.com/atx/umqtt/blob/master/umqtt/umqtt.c
+- https://github.com/atx/avr-mqtt-board/blob/master/src/main.c - tying stuff together
+- avrlib (downloaded in this dir) has a driver which might be a good starting point.
+
+- Major porting efforts:
+	- Pin mappings for ATXMega
+        - Clock configuration
+        - See if we can get a hex file built which incorporates everything...
+- Can wire sensors to UNO-8 board connected to ESP8266 for now. This is likely "good enough" until either support helps out with TPI, or custom firmware can be developed.
+
+- fuse1: 0x07 0000 0111
+  - wdt settings
+- fuse2: 0xBF 1011 1111
+  - enter bootloader on reset
+  - BOD disabled
+- fuse4: 0xF1 1111 0001
+  - reset enabled
+  - startup time - 60 cycles.
+  - WDLock programmd - watchdog always enabled, config not changeable.
+- fuse5: ???
+- LOCK: 0x3C  0011 1100
+  - Bootloader: RWLOCK - nothing can 
+  - BLBA: NOLOCK (SPM/ELPM allowed on app section)
+  - Apptable: NOLOCK
+  - LB: RWLOCK - no reading of flash/eeprom :(
+
+i2c goes to pe1 and pe0
+
+USARTD0 goes to debug header - PD3 TX, PD2 RX.
+Debug header H6, from left to right:
+- 12V TX
+- GND
+- GND
+- 12V RX
+- +12V.
+
+PD4 - NC
+PD5 - WP on EEPROM
+PD6 - none
+PD7 - none
+PE0/PE1-i2c
+PE2 - I/O?
+PE3 - I/O?
+PR1 - crystal-disc
+PR0 - crystal-disc
+
+RST pads go to PD4
+
+LEDs are active high
+
+KEYB - PD1
+OPER - PD0
+NET - PB3
+ONLINE - PB2
+LINK - Driven off of ASIX LK/ACT
+
+Crystal used for ASIX - chip seems to be off internal oscillator.
+
+ASIX:
+
+SA0 -PA0
+SA1 - PA1
+SA2 -PA2
+SA3 -PA3
+SA4 -PA4
+SA5 - Disconnected (pulled low internal?)
+
+PA5 - WRn
+PA6 - RDn
+PA7 - CSn
+
+USARTD0 -> PD3 TX -> transistor - pin 3 of H6 (count from white side
+USARTD0 -> PD2 RX -> transistor (MMBT3904L) - pin 2 of H6 i
+
+- Being used in 8 bit data mode (yay!)
+- PC is used for data bus.
+
+- IOIS16 not asserted
+- PME - unused
+- AEN - tied low?
+- IRQ - PB1
+- RSTn - PB0 - 4.7k to gnd. Held in reset!
+
+PB0 - 4.7K -> gnd!? 
+
+
+Power via RT8284N
