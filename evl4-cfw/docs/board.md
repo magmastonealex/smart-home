@@ -35,6 +35,9 @@ Expansion
 
 This is the main I2C bus interface. Contains +12V, SDA/SCL, GND. Need to double check ordering.
 
+From left to right, with key facing up:
+
+12V, SDA, SCL, GND
 
 H6
 ---

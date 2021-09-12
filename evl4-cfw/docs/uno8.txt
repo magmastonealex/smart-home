@@ -1,0 +1,20 @@
+UNO8 Expansion Board
+===
+
+This is an 8 channel expansion board, with a (loud!) buzzer, and two output channels.
+
+The 8 channels are analog inputs of some description, and as such can measure EOL resistors, open circuit, closed circuit, or anything in between.
+I haven't bothered to reverse engineer the hardware yet as it "just works" for my purposes.
+
+I don't have use for the outputs or buzzer, so I haven't figured those parts out yet.
+I suspect those have to do with commands 0x30/0x31. See the flowlogs for some more details.
+
+The board operates over i2c, with a command-response model - you write a command with optional parameter, and depending on the command, you then read back some data.
+
+The board presents on address 20 (ch. 09-16), 21 (ch. 17-24), or 22 (ch. 25-32) depending on jumper placement.
+
+
+The commands I know about are:
+
+0x00 -> ID request. Returns a 3 byte board identifier of some description. Mine is "0x41 0x4D 0x43"
+0x10 -> ADC value request. Returns 8 bytes indicating the current "value" for each of the 8 channels. I don't know how this translates to voltage/current, but I do know that by watching it you can figure out if it's open circuit, closed circuit, or has an EOL resistor.

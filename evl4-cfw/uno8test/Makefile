@@ -20,6 +20,7 @@ $(BPATH)/prog.hex: $(BPATH)/prog.elf
 
 $(BPATH)/prog.elf: $(OBJS) | $(BPATH)
 	avr-gcc $(CFLAGS) -o $(BPATH)/prog.elf $(OBJS)
+	avr-size -C --mcu=$(MCU) $(BPATH)/prog.elf
 
 $(BPATH)/%.o: src/%.c | $(DEPDIR) $(BPATH)
 	avr-gcc $(DEPFLAGS) $(CFLAGS) -o $@ -c $<
