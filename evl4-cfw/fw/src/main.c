@@ -3,12 +3,12 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
+#include "dbgserial.h"
+
 int main() {
 	PORTD.DIR |= (1<<1) | (1<<0);
 	PORTD.OUT |= (1<<0);
-
 	// Switch to 32MHz operation.
-
 	// Enable 32Mhz & 32.768KHz clocks.
 	OSC.CTRL |= OSC_RC32MEN_bm | OSC_RC32KEN_bm;
 	// Wait for 32Mhz and 23Khz clocks to stabilize...
@@ -19,11 +19,14 @@ int main() {
 	// And switch to 32MHz clock.
 	CCP = CCP_IOREG_gc;
 	CLK.CTRL = CLK_SCLKSEL_RC32M_gc;
+
+	init_serial();
 	
 	while(1) {
 		_delay_ms(200);
 		PORTD.OUT |= (1<<1);
 		_delay_ms(200);
 		PORTD.OUT &= ~(1<<1);
+		DBGprintf("hello\n");
 	}
 }
