@@ -26,7 +26,7 @@ $(BPATH)/%.o: src/%.c | $(DEPDIR) $(BPATH)
 	avr-gcc $(DEPFLAGS) $(CFLAGS) -o $@ -c $<
 
 flash:
-	avrdude $(AVRDUDEFLAGS) -U flash:w:$(BPATH)/prog.hex
+	avrdude $(AVRDUDEFLAGS) -U application:w:$(BPATH)/prog.hex
 flashfuses:
 	avrdude $(AVRDUDEFLAGS) -U lfuse:w:0xE2:m -U hfuse:w:0xD9:m  -U efuse:w:0xFF:m
 

@@ -8,6 +8,8 @@
 int main() {
 	PORTD.DIR |= (1<<1) | (1<<0);
 	PORTD.OUT |= (1<<0);
+	PORTB.DIR |= (1<<0);
+	PORTB.OUT |= (1<<0);
 	// Switch to 32MHz operation.
 	// Enable 32Mhz & 32.768KHz clocks.
 	OSC.CTRL |= OSC_RC32MEN_bm | OSC_RC32KEN_bm;
@@ -21,6 +23,8 @@ int main() {
 	CLK.CTRL = CLK_SCLKSEL_RC32M_gc;
 
 	init_serial();
+
+	//PORTD.OUT |= (1<<3);
 	
 	while(1) {
 		_delay_ms(200);

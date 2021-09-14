@@ -89,8 +89,8 @@ The ATXMega pins are connected as follows:
 - PC - entire port connected to data lines 0-7 on ASIX.
 - PD0 - OPER LED
 - PD1 - KEYB LED
-- PD2 - USART TX 
-- PD3 - USART RX
+- PD2 - USART RX
+- PD3 - USART TX 
 - PD4 - RST header??
 - PD5 - WP on EEPROM
 - PD6 - N/C
