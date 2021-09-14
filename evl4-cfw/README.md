@@ -26,3 +26,4 @@ Things I'm working on:
 - [ ] Bring up a basic firmware to test functionality of the EVL-4 (serial, LEDs)
 - [ ] Add support for the Ethernet PHY/MAC via uIP
 - [ ] Bring in the UNO-8 library developed as part of the test program
+- [ ] Add support for MQTT via lwmqtt (after evaluating code size)
