@@ -5,7 +5,7 @@ OBJS = $(addprefix $(BPATH)/,$(patsubst src/%.c,%.o,$(wildcard src/*.c)))
 
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
 
-CFLAGS+=-Wall -Werror -g -Os -mmcu=$(MCU) -std=c99 -DDEBUG=1
+CFLAGS+=-Wall -Werror -g -Os -mmcu=$(MCU) -std=c99 -DDEBUG=1 -DF_CPU=32000000
 AVRDUDEFLAGS+=-v -c atmelice_pdi -p x64d4
 
 all: $(BPATH)/prog.hex
