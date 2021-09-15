@@ -4,6 +4,7 @@
 #include <util/delay.h>
 
 #include "dbgserial.h"
+#include "nic.h"
 
 int main() {
 	PORTD.DIR |= (1<<1) | (1<<0);
@@ -23,14 +24,17 @@ int main() {
 	CLK.CTRL = CLK_SCLKSEL_RC32M_gc;
 
 	init_serial();
+	DBGprintf("hello world\n");
+	nic_init();
 
 	//PORTD.OUT |= (1<<3);
-	
+	int i = 0;	
 	while(1) {
 		_delay_ms(200);
 		PORTD.OUT |= (1<<1);
 		_delay_ms(200);
 		PORTD.OUT &= ~(1<<1);
 		DBGprintf("hello\n");
+		i++;
 	}
 }
