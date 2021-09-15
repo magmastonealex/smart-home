@@ -6,11 +6,12 @@
 // in non-debug builds, significantly reducing code size.
 
 #include <stdio.h>
+#include <avr/pgmspace.h>
 
 #ifndef DEBUG
 #define DEBUG 0
 #endif
 
-#define DBGprintf(fmt, ...) do { if(DEBUG){ printf(fmt, ##__VA_ARGS__);} } while (0)
+#define DBGprintf(fmt, ...) do { if(DEBUG){ printf_P(PSTR(fmt), ##__VA_ARGS__);} } while (0)
 
 void init_serial();
