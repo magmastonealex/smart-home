@@ -32,13 +32,13 @@ void netstack_loop() {
         inbuf.len=res;
         // Got a packet!
         // Print out details...
-        DBGprintf("Packet? %d\n", res);
+        //DBGprintf("Packet? %d\n", res);
         ether_hdr *hdr = (ether_hdr *) inbuf.buff;
-        DBGprintf("dest: ");
+        /*DBGprintf("dest: ");
         print_mac(hdr->dest_addr);
         DBGprintf(" src: ");
         print_mac(hdr->src_addr);
-        DBGprintf(" ethertype: %04x datalen %" PRIu16 "\n", ntohs(hdr->ethertype), res-sizeof(ether_hdr));
+        DBGprintf(" ethertype: %04x datalen %" PRIu16 "\n", ntohs(hdr->ethertype), res-sizeof(ether_hdr));*/
 
         uint16_t lether = ntohs(hdr->ethertype); 
         if (lether == ETH_P_ARP) {

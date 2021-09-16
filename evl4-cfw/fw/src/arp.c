@@ -86,12 +86,7 @@ void arp_in(sk_buff *buf) {
         return;
     }
     arp_ether_ipv4 *arp = (arp_ether_ipv4*) (buf->buff + sizeof(ether_hdr));
-    DBGprintf("spa: ");
-    print_ip(arp->spa);
-    DBGprintf(" tpa: ");
-    print_ip(arp->tpa);
-    DBGprintf("\n");
-    
+
     uint32_t my_addr = ip_get_ip_info()->addr;
     if (arp->htype == htons(ARP_HTYPE_ETHER) && arp->ptype == htons(ETH_P_IPV4)) {
         if (arp->tpa == my_addr) {
@@ -101,7 +96,6 @@ void arp_in(sk_buff *buf) {
             complete_arp(arp->sha, arp->spa);
             
             if (arp->op == ARP_OP_REQUEST) {
-                DBGprintf("arp sendto\n");
                 arp_to(my_addr, arp->spa, arp->sha);
             } else if (arp->op == ARP_OP_REPLY) {
                 // already added it!
@@ -154,13 +148,6 @@ void arp_to(uint32_t src, uint32_t dst, uint8_t *addr) {
     memcpy(arp->tha, addr, 6);
     arp->spa = src;
     arp->tpa = dst;
-    DBGprintf("Sending ARP reply from ");
-    print_ip(src);
-    DBGprintf(" to ");
-    print_ip(dst);
-    DBGprintf("  at ");
-    print_mac(addr);
-    DBGprintf("\n");
 
     nic_send(&arp_buff);
 }
