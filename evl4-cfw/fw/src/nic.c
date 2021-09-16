@@ -1,11 +1,19 @@
+#include "nic.h"
+#include <avr/pgmspace.h>
 #include <stdint.h>
 #include "ax.h"
+#include "dbgserial.h"
 
+const uint8_t MACADDR[6] PROGMEM = {0x00, 0x1C, 0x2A, 0x03, 0x2F, 0xF0};
 
-void nic_send(uint16_t len, uint8_t* packet)
+void nic_write_mac(uint8_t *loc) {
+	memcpy_P(loc, MACADDR, 6);
+}
+
+void nic_send(sk_buff* packet)
 {
-	ax_beginPacketSend(len);
-	ax_sendPacketData(packet, len);
+	ax_beginPacketSend(packet->len);
+	ax_sendPacketData(packet->buff, packet->len);
 	ax_endPacketSend();
 }
 
