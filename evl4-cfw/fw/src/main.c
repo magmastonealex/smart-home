@@ -4,10 +4,12 @@
 #include <string.h>
 #include <util/delay.h>
 #include <avr/pgmspace.h>
+#include <avr/interrupt.h>
 #include <inttypes.h>
 
 #include "dbgserial.h"
 #include "nic.h"
+#include "timer.h"
 
 uint8_t PACKETBUFFER[1514];
 const uint8_t MACADDR[6] PROGMEM = {0x00, 0x1C, 0x2A, 0x03, 0x2F, 0xF0};
@@ -87,15 +89,20 @@ int main() {
 	init_serial();
 	DBGprintf("hello world\n");
 	nic_init();
+	sei();
+	PMIC.CTRL |= PMIC_LOLVLEN_bm;
+	init_timers();
+
+
+	
 
 	//PORTD.OUT |= (1<<3);
-	uint8_t i = 0;
 	while(1) {
-		i++;
-		_delay_ms(50);
-		PORTD.OUT |= (1<<1);
-		_delay_ms(50);
-		PORTD.OUT &= ~(1<<1);
+		//_delay_ms(50);
+		//PORTD.OUT |= (1<<1);
+		//_delay_ms(50);
+		//PORTD.OUT &= ~(1<<1);
+		printf("Timer %d  RTC %d\n", timer_get_ticks(), rtc_get_ticks());
 		uint16_t res = nic_poll(1514, PACKETBUFFER);
 		if (res > 0) {
 			// Got a packet!
@@ -123,7 +130,9 @@ int main() {
 				DBGprintf("\n");
 			}
 		}
+		/*
 		if (i > 20) {
+
 			i = 0;
 			DBGprintf("prepping arp...\n");
 			ether_hdr *hdr = (ether_hdr *) PACKETBUFFER;
@@ -145,6 +154,6 @@ int main() {
 			DBGprintf("sending arp...\n");
 			nic_send(60, PACKETBUFFER);
 			DBGprintf("sent\n");
-		}
+		}*/
 	}
 }
