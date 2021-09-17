@@ -12,6 +12,7 @@ void nic_write_mac(uint8_t *loc) {
 
 void nic_send(sk_buff* packet)
 {
+
 	ax_beginPacketSend(packet->len);
 	ax_sendPacketData(packet->buff, packet->len);
 	ax_endPacketSend();
@@ -41,7 +42,7 @@ uint16_t nic_poll(uint16_t maxlen, uint8_t* packet) {
 }
 
 void print_reg_state() {
-	ax_print_registers();
+	//ax_print_registers();
 }
 
 void nic_init() {

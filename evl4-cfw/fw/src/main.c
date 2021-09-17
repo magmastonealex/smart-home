@@ -13,6 +13,7 @@
 #include "nic.h"
 #include "timer.h"
 
+#include "app.h"
 
 
 int main() {
@@ -39,6 +40,7 @@ int main() {
 	PMIC.CTRL |= PMIC_LOLVLEN_bm;
 	init_timers();
 
+	init_app();
 
 	
 

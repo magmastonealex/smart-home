@@ -23,12 +23,15 @@
 #define ETH_ALEN 6
 #define IP_ALEN 4
 
+#define IP_PROTO_ICMP 1
+#define IP_PROTO_UDP 17
+
 
 #define IPADDR_FROM_OCTETS(a,b,c,d) (uint32_t) (((((uint32_t)a) << 0)) | ((((uint32_t)b) << 8)) | ((((uint32_t)c) << 16)) | ((((uint32_t)d) << 24)))
 
 // We're going to define a relatively low MTU here as we don't have anything data-intensive to do.
 // The biggest 
-#define NET_MTU 1550
+#define NET_MTU 380
 
 // Reserve sk_buffs for applications to use - this is packets pending transmission.
 // You probably want this to be roughly equal to the number of apps
@@ -78,10 +81,32 @@ typedef struct {
     uint16_t checksum;
 } __attribute__((packed)) udp_hdr;
 
+typedef union 
+{
+    uint32_t u32Data;
+    uint16_t u16Data[2];
+    uint8_t  u8Data[4];
+} icmp_data_union;
+
+typedef struct {
+    uint8_t type;
+    uint8_t code;
+    uint16_t checksum;
+    icmp_data_union rest;
+} __attribute__((packed)) icmp_hdr;
+
+// Helper define to make constructing UDP packets a bit easier for end applications.
+#define UDP_PKT_START (sizeof(ether_hdr)+sizeof(ip4_hdr)+sizeof(udp_hdr))
+
 typedef struct {
     uint8_t flags;
     uint8_t buff[NET_MTU];
     uint16_t len;
+    ether_hdr *ethhdr;
+    ip4_hdr *iphdr;
+    uint8_t *plstart; // IP packet payload
+    udp_hdr *udphdr; // UDP header location
+    uint8_t *udpdata; // UDP raw data (will always be buff + UDP_PKT_START). Length is len-UDP_PKT_START.
 } sk_buff;
 
 void print_mac(uint8_t *mac);

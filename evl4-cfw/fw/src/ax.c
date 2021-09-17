@@ -72,6 +72,8 @@ static uint8_t ax_read(uint8_t address) {
 	return data;
 }
 
+
+// I am not convinced this does anything. Considering just using this to re-do init.
 void ax_receiveOverflowRecover(void)
 {
 	DBGprintf("Receive overflow. Recovering...\n");
@@ -302,15 +304,8 @@ void ax_endPacketRetreive(void)
 	ax_write(BNRY, bnryPagePtr);
 }
 
-void ax_print_registers() {
-	DBGprintf("CR: %x, ", ax_read(CR));
-	DBGprintf("ISR: %x, ", ax_read(ISR));
-	DBGprintf("RSR: %x ", ax_read(RSR));
-	DBGprintf("BNRY: %x\n", ax_read(BNRY));	
-}
 void ax_init() {
 	port_setup();
-	DBGprintf("setup nic");
 	_delay_ms(200);
 	// Hard reset....
 	RST_PORT &= ~RST_PIN;
@@ -322,11 +317,9 @@ void ax_init() {
 	// Wait for PHY...
 	ax_write(RSTPORT, ax_read(RSTPORT));
 	while(ax_read(TR) & RST_B) {
-		DBGprintf("wait awake\n");
 		_delay_ms(10);
 	}
 	while((ax_read(ISR) & RST_ISR) == 0) {
-		DBGprintf("wait awake2\n");
 		_delay_ms(10);
 	}
 
@@ -368,7 +361,6 @@ void ax_init() {
 	ax_write(CR,(RD2|START)); // Start the PHY for realzies!
 	ax_write(ISR,0xFF);
 	ax_write(IMR,0x10); // only overwrite interrupt	
-	DBGprintf("awake!\n");
 }
 
 

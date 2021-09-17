@@ -16,4 +16,4 @@ void ip_recv(sk_buff *buf);
 // send this packet to a destintion.
 // IP + ETH will write to the first sizeof(ip4_hdr) + sizeof(ether_hdr) bytes, so anything
 // you put there will be clobbered. Start your packet after that.
-uint8_t ip_sendto(uint32_t dst, sk_buff *buf);
+uint8_t ip_sendto(uint32_t dst, uint8_t protocol, sk_buff *buf);

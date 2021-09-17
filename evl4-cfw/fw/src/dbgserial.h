@@ -12,6 +12,9 @@
 #define DEBUG 0
 #endif
 
-#define DBGprintf(fmt, ...) do { if(DEBUG){ printf_P(PSTR(fmt), ##__VA_ARGS__);} } while (0)
-
+#if DEBUG==1
+#define DBGprintf(fmt, ...) do { printf_P(PSTR(fmt), ##__VA_ARGS__); } while (0)
+#else
+#define DBGprintf(fmt, ...) do {} while(0)
+#endif
 void init_serial();

@@ -2,6 +2,10 @@
 #include <stdint.h>
 #include "netcommon.h"
 
+typedef void (*udp_handler)(void*, sk_buff *buf);
+
+void udp_register(uint16_t dport, void* data, udp_handler handler);
+
 // Receive a UDP packet,
 // and farm it out to any listeners.
 // If nothing is listening, a ICMP Port Unreachable message will be sent.
