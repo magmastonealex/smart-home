@@ -28,7 +28,7 @@
 
 // We're going to define a relatively low MTU here as we don't have anything data-intensive to do.
 // The biggest 
-#define NET_MTU 350
+#define NET_MTU 1550
 
 // Reserve sk_buffs for applications to use - this is packets pending transmission.
 // You probably want this to be roughly equal to the number of apps
@@ -57,6 +57,26 @@ typedef struct {
    uint8_t tha[ETH_ALEN];  /* Target hardware address */
    uint32_t tpa;   /* Target IP address */
 } __attribute__((packed)) arp_ether_ipv4;
+
+typedef struct {
+    uint8_t ver_len;
+    uint8_t dscp_ecn;
+    uint16_t total_length;
+    uint16_t identification;
+    uint16_t flags_fragment;
+    uint8_t ttl;
+    uint8_t protocol;
+    uint16_t checksum;
+    uint32_t src;
+    uint32_t dst;
+} __attribute__((packed)) ip4_hdr;
+
+typedef struct {
+    uint16_t sport;
+    uint16_t dport;
+    uint16_t len;
+    uint16_t checksum;
+} __attribute__((packed)) udp_hdr;
 
 typedef struct {
     uint8_t flags;

@@ -4,6 +4,7 @@
 #include "timer.h"
 #include "arp.h"
 #include "netcommon.h"
+#include "ip.h"
 #include "dbgserial.h"
 
 sk_buff inbuf;
@@ -41,9 +42,15 @@ void netstack_loop() {
         DBGprintf(" ethertype: %04x datalen %" PRIu16 "\n", ntohs(hdr->ethertype), res-sizeof(ether_hdr));*/
 
         uint16_t lether = ntohs(hdr->ethertype); 
+        //DBGprintf(" ethertype: %04x datalen %" PRIu16 "\n", ntohs(hdr->ethertype), res-sizeof(ether_hdr));
         if (lether == ETH_P_ARP) {
             arp_in(&inbuf);
+        } else if (lether == ETH_P_IPV4) {
+            ip_recv(&inbuf);
+        } else {
+            DBGprintf("[ETH] unknown ethertype %04x", lether);
         }
+
     }
 
     if (rtc_get_ticks() != last_tick) {
