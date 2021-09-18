@@ -1,4 +1,5 @@
 #pragma once
+#include <stdint.h>
 // A rough-around-the-edges coap implementation, to go along with my rough-around-the-edges UDP/IP stack :)
 // You probably want to just use microcoap or CoAP-simple-library or similar.
 // This is purpose built to handle two (and only two) things:
@@ -17,3 +18,6 @@
 void init_coaprouter();
 
 void coaprouter_periodic();
+
+void coap_update_sensor(uint8_t sensorid, uint8_t value);
+void coap_mark_ready();

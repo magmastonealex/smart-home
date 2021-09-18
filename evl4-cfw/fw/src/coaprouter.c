@@ -7,11 +7,11 @@
 
 
 // TODOs:
-//  - call coap_sensor_resp_received based on received packets.
-//  - Implement dirty-bit checking and packet sending.
-//  - Implement send for all-sensors.
 //  - plumb interval into main.
 //
+
+const char wellknownsdresp[] PROGMEM = "</rawvalues>;title=\"current raw adc values. Returns 8 bytes, one per channel.\",\n";
+const char pubsubendpoint[] PROGMEM = "publish";
 
 
 sk_buff coapOutputBuffer = {0};
@@ -55,13 +55,16 @@ typedef struct {
 uint16_t sensoracks = 0;
 
 #define REPORT_ALL_INTERVAL_50MS 60
+#define SENSOR_RETRY_INTERVAL_50MS 6
 // In units of 50ms, how long till next report-all gets triggered?
 // Normally done every 3 seconds, also serves as our heartbeat.
 // This report-all is sent non-reliably, given the frequency.
 uint8_t sensorsReportAllTimer = 0;
 uint8_t sensorsReady = 0;
 coap_sensor allSensors[] = {
-    {0}
+    {0},
+    {1, 0, 0, 0, 0},
+    {2, 0, 0, 0, 0}
 };
 
 void coap_update_sensor(uint8_t sensorid, uint8_t value) {
@@ -73,10 +76,17 @@ void coap_update_sensor(uint8_t sensorid, uint8_t value) {
     }
 }
 
-// Sensor values will not be reported until this is 1.
+// Sensor values will not be reported until this is called. It will also mark all sensors as dirty.
 void coap_mark_ready() {
     sensorsReady = 1;
     sensorsReportAllTimer = 0;
+    uint8_t numsensors = sizeof(allSensors) / sizeof(coap_sensor);
+    for (uint8_t i = 0; i < numsensors; i++)
+    {
+        allSensors[i].dirty = 1;
+        allSensors[i].sendtimer = 2+i; // don't send all 8 at once...
+        allSensors[i].ack = sensoracks++;
+    }
 }
 
 void coap_sensor_resp_received(uint16_t ackid) {
@@ -90,8 +100,6 @@ void coap_sensor_resp_received(uint16_t ackid) {
     }
     
 }
-
-const char wellknownsdresp[] PROGMEM = "</rawvalues>;title=\"current raw adc values. Returns 8 bytes, one per channel.\",\n";
 
 void cb_servicediscovery(void* data, coap_pkt* req, coap_pkt *res, sk_buff *buf) {
     coapScratch[0] = 40; // content-type - link-format.
@@ -122,7 +130,9 @@ void coaprouter_udp_handler(void *data, sk_buff *buf) {
         return;
     }
     
-    // TODO: if this is an ack for something we sent, this needs to go off somewhere else here.
+    if (inpkt.hdr->type == COAP_TYPE_ACK) {
+        coap_sensor_resp_received(ntohs(inpkt.hdr->msgid_be));
+    }
 
     uint16_t dport = buf->udphdr->sport;
     uint32_t dst = buf->iphdr->src;
@@ -193,15 +203,67 @@ void init_coaprouter() {
     }
 }
 
+
+static void send_update(uint8_t type, uint8_t *upd, uint8_t update_len, uint16_t msgid) {
+    memset((uint8_t*)&outpkt, 0, sizeof(coap_pkt));
+    outpkt.hdr = &outpktHdr;
+
+    outpkt.hdr->msgid_be = htons(msgid);
+    outpkt.hdr->type = type;
+    outpkt.hdr->ver = 1;
+    
+    outpkt.token.len = 0;
+    outpkt.hdr->tkl = 0;
+
+    outpkt.hdr->code_class = 0;
+    outpkt.hdr->code_detail = 2;
+
+    memcpy_P(coapScratch, pubsubendpoint, 7);
+    outpkt.options[0].option_number = 11;
+    outpkt.options[0].option_value.len = 7;
+    outpkt.options[0].option_value.p = coapScratch;
+
+    outpkt.data.len = update_len;
+    outpkt.data.p = upd;
+
+    coapOutputBuffer.len = NET_MTU;
+    uint16_t usedLen = 0;
+    uint8_t ret = coap_serialize(&outpkt, coapOutputBuffer.buff+UDP_PKT_START, coapOutputBuffer.len - UDP_PKT_START, &usedLen);
+    if (ret != 0) {
+        DBGprintf("coap serialize failed: %u", ret);
+        return;
+    }
+    
+    coapOutputBuffer.len = UDP_PKT_START + usedLen;
+
+    udp_sendto(IPADDR_FROM_OCTETS(192, 168, 50, 1), 5683, 5683, &coapOutputBuffer);
+}
+
+uint8_t updateScratch[sizeof(allSensors) / sizeof(coap_sensor)];
 // Should get called every ~50ms.
 void coaprouter_periodic() {
     // If our allReport timer has ticked down, then send the state of all sensors.
+    uint8_t numsensors = sizeof(allSensors) / sizeof(coap_sensor);
     if (sensorsReportAllTimer == 0) {
+        for (uint8_t i = 0; i < numsensors; i++) {
+            updateScratch[i] = allSensors[i].value;
+        }
+        send_update(COAP_TYPE_NON_CONFIRMABLE, updateScratch, numsensors, sensoracks++);
         sensorsReportAllTimer = REPORT_ALL_INTERVAL_50MS;
     }
 
-    // Look for any dirty bits, and send packets for those specifically.
-   
-    
+    // Look for any dirty bits w/ zero timers, and send packets for those specifically.
+
+    for (uint8_t i = 0; i < numsensors; i++) {
+        if(allSensors[i].dirty) {
+            if (allSensors[i].sendtimer == 0) {
+                updateScratch[0] = allSensors[i].value;
+                send_update(COAP_TYPE_CONFIRMABLE, updateScratch, 1, allSensors[i].ack);
+                allSensors[i].sendtimer = SENSOR_RETRY_INTERVAL_50MS;
+            } else {
+                allSensors[i].sendtimer--;
+            }
+        }
+    }
     
 }
