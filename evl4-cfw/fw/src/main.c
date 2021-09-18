@@ -13,7 +13,7 @@
 #include "nic.h"
 #include "timer.h"
 
-#include "coap.h"
+#include "coaprouter.h"
 
 
 int main() {
@@ -40,7 +40,7 @@ int main() {
 	PMIC.CTRL |= PMIC_LOLVLEN_bm;
 	init_timers();
 	
-	init_coap();
+	init_coaprouter();
 
 	
 

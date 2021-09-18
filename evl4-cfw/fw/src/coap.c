@@ -3,33 +3,6 @@
 #include "dbgserial.h"
 #include <string.h>
 
-#define COAP_ERR_NONE 0
-#define COAP_ERR_HEADER_SHORT 1
-#define COAP_ERR_VERSION 2
-#define COAP_ERR_TOKEN_LENGTH 3
-#define COAP_ERR_OPTION_DELTA_INVALID 4
-#define COAP_ERR_TOO_MANY_OPTIONS 5
-#define COAP_ERR_OPTION_OVERFLOW 6
-#define COAP_ERR_OPTION_PL_OVERFLOW 7
-#define COAP_ERR_PAYLOAD_OVERFLOW 8
-
-#define COAP_TYPE_CONFIRMABLE 0
-#define COAP_TYPE_NON_CONFIRMABLE 1
-#define COAP_TYPE_ACK 2
-#define COAP_TYPE_RESET 2
-
-#define COAP_OPTION_NO_OPTION 0
-// TODO: implement COAP ping - empty confirmable message -> RESET.
-
-sk_buff coapOutputBuffer = {0};
-
-uint32_t coapServer = IPADDR_FROM_OCTETS(192,168,50,1);
-
-// Reservation for space to parse an incoming packet.
-coap_pkt inpkt;
-
-uint8_t coap_serialize(coap_pkt *pkt, uint8_t *buf, uint16_t len, uint16_t *realLen);
-
 void dump_coap_buffer(coap_buffer *buffer) {
     DBGprintf("\t");
     for (uint16_t i = 0; i < buffer->len; i++)
@@ -68,7 +41,7 @@ void dump_coap(coap_pkt *pkt) {
     
 }
 
-static uint8_t coap_parse(coap_pkt *pkt, sk_buff*buf) {
+uint8_t coap_parse(coap_pkt *pkt, sk_buff*buf) {
     uint16_t realLen = buf->len - UDP_PKT_START;
     if (realLen < 4) {
         return COAP_ERR_HEADER_SHORT;
@@ -169,68 +142,6 @@ static uint8_t coap_parse(coap_pkt *pkt, sk_buff*buf) {
     return 0;
 };
 
-const char* RESPSTR="hello from embedded world";
-uint8_t cformat[1] = {41};
-void coap_udp_handler(void *data, sk_buff *buf) {
-
-    uint8_t ret = coap_parse(&inpkt, buf);
-    if (ret != 0) {
-        DBGprintf("coap parse failed: %u", ret);
-        return;
-    }
-
-    dump_coap(&inpkt);
-
-    uint16_t dport = buf->udphdr->sport;
-    uint32_t dst = buf->iphdr->src;
-
-    coap_pkt_hdr coapHdr;
-    coapHdr.ver = 1;
-
-    coapHdr.msgid_be = inpkt.hdr->msgid_be;
-    coapHdr.type = COAP_TYPE_ACK;
-    
-    coapHdr.code_class = 2;
-    coapHdr.code_detail = 5;
-
-    coap_pkt coapPkt = {0};
-    coapPkt.hdr = &coapHdr;
-    uint8_t tokenstorage[8];
-    memcpy(tokenstorage, inpkt.token.p, inpkt.token.len);
-    coapPkt.token.len = inpkt.token.len;
-
-    coapPkt.options[0].option_number=12;
-    coapPkt.options[0].option_value.len=1;
-    coapPkt.options[0].option_value.p = cformat;
-
-    coapPkt.options[1].option_number=100;
-    coapPkt.options[1].option_value.len=3;
-    coapPkt.options[1].option_value.p = (uint8_t*)"abc";
-
-    coapPkt.options[2].option_number=12345;
-    coapPkt.options[2].option_value.len=20;
-    coapPkt.options[2].option_value.p = (uint8_t*)"worldworldworldworld";
-
-    coapHdr.tkl = coapPkt.token.len;
-    coapPkt.token.p = tokenstorage;
-
-    coapPkt.data.p = (uint8_t*)RESPSTR;
-    coapPkt.data.len = strlen(RESPSTR);
-    
-    coapOutputBuffer.len = NET_MTU;
-    uint16_t usedLen = 0;
-    ret = coap_serialize(&coapPkt, coapOutputBuffer.buff+UDP_PKT_START, coapOutputBuffer.len - UDP_PKT_START, &usedLen);
-    if (ret != 0) {
-        DBGprintf("coap serialize failed: %u", ret);
-        return;
-    }
-    
-    coapOutputBuffer.len = UDP_PKT_START + usedLen;
-
-
-    udp_sendto(dst, 5683, ntohs(dport), &coapOutputBuffer);
-}
-
 // serialize a coap packet into the provided buffer.
 // Assumes that options is sorted. Very bad things will happen if it's not.
 // Also assumes token.length == hdr->tkl.
@@ -255,7 +166,7 @@ uint8_t coap_serialize(coap_pkt *pkt, uint8_t *buf, uint16_t len, uint16_t *real
     uint16_t option_last = 0;
     for (uint8_t i = 0; i < MAX_COAP_OPTIONS; i++)
     {
-        if (pkt->options[i].option_number == 0) {
+        if (pkt->options[i].option_number == COAP_OPTION_NO_OPTION) {
             break;
         }
         // figure out how to encode the option number...
@@ -329,12 +240,4 @@ uint8_t coap_serialize(coap_pkt *pkt, uint8_t *buf, uint16_t len, uint16_t *real
     
     *realLen = bufIdx;
     return COAP_ERR_NONE;
-}
-
-void init_coap() {
-    udp_register(5683, NULL, coap_udp_handler);
-}
-
-void coap_periodic() {
-    // Re-send any pending confirmable messages.
 }

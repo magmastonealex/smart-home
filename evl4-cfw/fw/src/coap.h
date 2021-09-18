@@ -1,17 +1,28 @@
 #pragma once
 #include <stdint.h>
-// A rough-around-the-edges coap implementation, to go along with my rough-around-the-edges UDP/IP stack :)
-// You probably want to just use microcoap or CoAP-simple-library or similar.
-// This is purpose built to handle two (and only two) things:
-// 1. Serve requests to get/set configuration & OTA updates.
-// 2. Provide access to a pub (not even sub) server to publish sensor values supporting retries.
-// Oh, and hopefully do all the above in only a couple hundred bytes of RAM.
-// There is currently no support for GET/PUT/POST requests out to other servers,
-// other than the above mentioned publish support. You could probably extend this if you really wanted to.
-// something something callbacks/promises/futures.
+#include "netcommon.h"
 
 // Only 10 options per packet (they take up lots of RAM!)
 #define MAX_COAP_OPTIONS 10
+
+#define COAP_ERR_NONE 0
+#define COAP_ERR_HEADER_SHORT 1
+#define COAP_ERR_VERSION 2
+#define COAP_ERR_TOKEN_LENGTH 3
+#define COAP_ERR_OPTION_DELTA_INVALID 4
+#define COAP_ERR_TOO_MANY_OPTIONS 5
+#define COAP_ERR_OPTION_OVERFLOW 6
+#define COAP_ERR_OPTION_PL_OVERFLOW 7
+#define COAP_ERR_PAYLOAD_OVERFLOW 8
+
+#define COAP_TYPE_CONFIRMABLE 0
+#define COAP_TYPE_NON_CONFIRMABLE 1
+#define COAP_TYPE_ACK 2
+#define COAP_TYPE_RESET 2
+
+#define COAP_OPTION_NO_OPTION 0
+#define COAP_OPTION_URI_PATH 11
+#define COAP_OPTION_CONTENT_FORMAT 12
 
 typedef struct {
     uint8_t tkl:4;
@@ -42,6 +53,9 @@ typedef struct {
     coap_buffer data;
 } coap_pkt;
 
-void init_coap();
 
-void coap_periodic();
+void dump_coap(coap_pkt *pkt);
+void dump_coap_buffer(coap_buffer *buffer);
+
+uint8_t coap_parse(coap_pkt *pkt, sk_buff*buf);
+uint8_t coap_serialize(coap_pkt *pkt, uint8_t *buf, uint16_t len, uint16_t *realLen);
