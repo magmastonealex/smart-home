@@ -1,9 +1,10 @@
 - [X] Bring up a basic firmware to test functionality of the EVL-4 (serial, LEDs)
 - [X] Add support for the Ethernet PHY/MAC
-- [ ] Clean up MAC/PHY driver
-- [ ] Start implementing IP stack, since I just need some basic UDP bits.....
-- [ ] CoAP server/client support.
-- [ ] TFTP OTA upgrades.
+- [X] Clean up MAC/PHY driver
+- [X] Start implementing IP stack, since I just need some basic UDP bits.....
+- [X] CoAP server/client support.
+- [ ] ~TFTP OTA upgrades - punting on this for now. Might get back to it later.~
+- [ ] IN PROGRESS - CoAP pubsub server & client implementation.
 - [ ] Bring in the UNO-8 library developed as part of the test program
 - [ ] Implement support for the RTC peripheral
 - [ ] Add hardware + SW support for a power-cycling relay to reset the entire system.

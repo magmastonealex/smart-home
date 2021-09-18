@@ -5,6 +5,15 @@
 #include <string.h>
 #include <avr/pgmspace.h>
 
+
+// TODOs:
+//  - call coap_sensor_resp_received based on received packets.
+//  - Implement dirty-bit checking and packet sending.
+//  - Implement send for all-sensors.
+//  - plumb interval into main.
+//
+
+
 sk_buff coapOutputBuffer = {0};
 
 // Reservation for space to parse an incoming packet.
@@ -31,6 +40,56 @@ typedef struct {
     void* data;
 } coap_endpoint;
 
+// changes to coap_sensors are detected (marked dirty/clean)
+// and sent out ASAP. Retries if not confirmed immediately happen
+// every 300ms.
+typedef struct {
+    uint8_t sensorId;
+    uint8_t value;
+
+    uint8_t dirty;
+    uint8_t sendtimer;
+    uint16_t ack;
+} coap_sensor;
+
+uint16_t sensoracks = 0;
+
+#define REPORT_ALL_INTERVAL_50MS 60
+// In units of 50ms, how long till next report-all gets triggered?
+// Normally done every 3 seconds, also serves as our heartbeat.
+// This report-all is sent non-reliably, given the frequency.
+uint8_t sensorsReportAllTimer = 0;
+uint8_t sensorsReady = 0;
+coap_sensor allSensors[] = {
+    {0}
+};
+
+void coap_update_sensor(uint8_t sensorid, uint8_t value) {
+    if(allSensors[sensorid].value != value) {
+        allSensors[sensorid].value = value;
+        allSensors[sensorid].dirty = 1;
+        allSensors[sensorid].sendtimer = 0;
+        allSensors[sensorid].ack = sensoracks++;
+    }
+}
+
+// Sensor values will not be reported until this is 1.
+void coap_mark_ready() {
+    sensorsReady = 1;
+    sensorsReportAllTimer = 0;
+}
+
+void coap_sensor_resp_received(uint16_t ackid) {
+    uint8_t numsensors = sizeof(allSensors) / sizeof(coap_sensor);
+    for (uint8_t i = 0; i < numsensors; i++)
+    {
+        if (allSensors[i].ack == ackid) {
+            allSensors[i].dirty = 0;
+            break;
+        }
+    }
+    
+}
 
 const char wellknownsdresp[] PROGMEM = "</rawvalues>;title=\"current raw adc values. Returns 8 bytes, one per channel.\",\n";
 
@@ -134,6 +193,15 @@ void init_coaprouter() {
     }
 }
 
+// Should get called every ~50ms.
 void coaprouter_periodic() {
-    // Re-send any pending confirmable messages.
+    // If our allReport timer has ticked down, then send the state of all sensors.
+    if (sensorsReportAllTimer == 0) {
+        sensorsReportAllTimer = REPORT_ALL_INTERVAL_50MS;
+    }
+
+    // Look for any dirty bits, and send packets for those specifically.
+   
+    
+    
 }
