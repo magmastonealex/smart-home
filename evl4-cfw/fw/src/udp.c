@@ -74,7 +74,7 @@ uint8_t udp_sendto(uint32_t dst, uint16_t sport, uint16_t dport, sk_buff *buf) {
     }
 
     // Used for UDP checksum calculation.
-    ip4_hdr *iphdr = (ip4_hdr*) (buf->buff +(sizeof(ether_hdr) + sizeof(ip4_hdr)));
+    ip4_hdr *iphdr = (ip4_hdr*) (buf->buff +(sizeof(ether_hdr)));
     buf->iphdr = iphdr;
     iphdr->src = ip_get_ip_info()->addr;
     iphdr->dst = dst;

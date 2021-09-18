@@ -13,7 +13,7 @@
 #include "nic.h"
 #include "timer.h"
 
-#include "app.h"
+#include "coap.h"
 
 
 int main() {
@@ -39,8 +39,8 @@ int main() {
 	sei();
 	PMIC.CTRL |= PMIC_LOLVLEN_bm;
 	init_timers();
-
-	init_app();
+	
+	init_coap();
 
 	
 
