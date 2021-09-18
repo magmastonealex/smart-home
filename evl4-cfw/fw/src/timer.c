@@ -4,7 +4,7 @@
 static volatile uint16_t ticker = 0;
 
 ISR(TCC0_OVF_vect) {
-    PORTD.OUTTGL = (1<<1);
+    //PORTD.OUTTGL = (1<<1);
     ticker++;
 }
 

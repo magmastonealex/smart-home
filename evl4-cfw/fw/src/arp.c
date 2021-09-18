@@ -9,6 +9,7 @@ typedef struct {
     uint32_t ip;
     uint8_t hwaddr[6];
     uint8_t time; // Timeout - starts at 255 seconds.
+    uint8_t use_time; // Counter for last use - reset to 255 every time it's used.
 } arp_entry;
 
 #define NUM_ARP_ENTRIES 10
@@ -78,6 +79,7 @@ void complete_arp(uint8_t *addr, uint32_t host) {
     arp_entries[entry].ip = host;
     memcpy(arp_entries[entry].hwaddr, addr, 6);
     arp_entries[entry].time = 255;
+
 }
 
 void arp_in(sk_buff *buf) {
@@ -111,9 +113,11 @@ void arp_fill(uint8_t *hwaddr, uint32_t ipaddr) {
         if (arp_entries[i].ip == ipaddr && arp_entries[i].time > 0) {
             if (arp_entries[i].complete == 1) {
                 // found it!
+                arp_entries[i].use_time = 255;
                 memcpy(hwaddr, arp_entries[i].hwaddr, 6);
             }
-            // already looking for it, didn't find it.
+            // already looking for it, didn't find it. Broadcast.
+            memset(hwaddr, 0xFF, 6);
             return;
         }
     }
@@ -122,6 +126,9 @@ void arp_fill(uint8_t *hwaddr, uint32_t ipaddr) {
     arp_entries[entry].complete = 0;
     arp_entries[entry].time = 10;
     arp_entries[entry].ip = ipaddr;
+
+    uint32_t my_addr = ip_get_ip_info()->addr;
+    arp_for(my_addr, ipaddr);
     
     // Broadcast this IP packet. We'll eventually get an ARP reply, or snoop on an IP response, whichever comes first.
     memset(hwaddr, 0xFF, 6);
@@ -186,9 +193,15 @@ void arp_interval() {
     // expire existing entries
     for (uint8_t i = 0; i < NUM_ARP_ENTRIES; i++) {
         if(arp_entries[i].time > 0) arp_entries[i].time--;
+        if(arp_entries[i].use_time > 0) arp_entries[i].use_time--;
 
         // look for any incomplete requests with time & attempts left.
         if (arp_entries[i].complete == 0 && arp_entries[i].time > 0) {
+            arp_for(my_addr, arp_entries[i].ip);
+        }
+
+        // Look for any entries about to expire, still in use (in last ~30 seconds), and preemptively ARP.
+        if (arp_entries[i].complete == 1 && arp_entries[i].time < 10 && arp_entries[i].use_time > 220) {
             arp_for(my_addr, arp_entries[i].ip);
         }
     }

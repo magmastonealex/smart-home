@@ -51,33 +51,5 @@ void netstack_loop() {
         last_tick = rtc_get_ticks();
         // 1 second has passed. Some things need kicking.
         arp_interval();
-        if (rtc_get_ticks() % 30 == 0) {
-            arp_debug_dump();
-        } 
     }
-		/*
-		if (i > 20) {
-
-			i = 0;
-			DBGprintf("prepping arp...\n");
-			ether_hdr *hdr = (ether_hdr *) PACKETBUFFER;
-			memset(PACKETBUFFER, 0x00, 60);
-
-			memset(hdr->dest_addr, 0xFF, 6);
-			memcpy_P(hdr->src_addr, MACADDR, 6);
-			hdr->ethertype = htons(ETH_P_ARP);
-			arp_ether_ipv4 *arp = (arp_ether_ipv4*) (PACKETBUFFER + sizeof(ether_hdr));
-			arp->htype = htons(ARP_HTYPE_ETHER);
-			arp->ptype = htons(ETH_P_IPV4);
-			arp->hlen = ETH_ALEN;
-			arp->plen = IP_ALEN;
-			arp->op = htons(1);
-			memcpy_P(arp->sha, MACADDR, 6);
-			memset(arp->tha, 0xFF, 6);
-			arp->spa = IPADDR_FROM_OCTETS(10, 102, 40, 253);
-			arp->tpa = IPADDR_FROM_OCTETS(10, 102, 40, 128);
-			DBGprintf("sending arp...\n");
-			nic_send(60, PACKETBUFFER);
-			DBGprintf("sent\n");
-		}*/
 }

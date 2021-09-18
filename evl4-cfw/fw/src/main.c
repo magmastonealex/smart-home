@@ -42,15 +42,30 @@ int main() {
 	
 	init_coaprouter();
 
-	
+	coap_mark_ready();	
 
 	//PORTD.OUT |= (1<<3);
+	uint8_t coapinterval = 5;
+	uint8_t last_rtc_tick = 0x00;
+	uint8_t last_timer_tick = 0x00;
 	while(1) {
-		//_delay_ms(50);
-		//PORTD.OUT |= (1<<1);
-		//_delay_ms(50);
-		//PORTD.OUT &= ~(1<<1);
-		//printf("Timer %d  RTC %d\n", timer_get_ticks(), rtc_get_ticks());
 		netstack_loop();
+
+		// don't care about absolute values, just care about changes in the low byte.
+		if (last_rtc_tick != (rtc_get_ticks() & 0x00FF)) {
+			last_rtc_tick = (uint8_t)(rtc_get_ticks() & 0x00FF);
+			// 1 second tick. For now, we'll use this to change a sensor's state.
+			coap_update_sensor(1, (uint8_t)(last_rtc_tick & 0x00FF));
+		}
+
+		if (last_timer_tick != (timer_get_ticks() & 0x00FF)) {
+			last_timer_tick = (uint8_t)(timer_get_ticks() & 0x00FF);
+			// 10ms tick.
+			coapinterval--;
+			if (coapinterval == 0) {
+				coapinterval = 5;
+				coaprouter_periodic();
+			}
+		}
 	}
 }
