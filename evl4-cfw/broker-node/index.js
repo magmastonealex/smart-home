@@ -57,8 +57,9 @@ server.on('request', function (req, res) {
         res.end();
         return;
     }
-    console.log(req.payload.toString('hex'));
-    console.log(req.url);
+
+    log.info('Got publish request: ', req.payload);
+
     if (req.payload.length % 2 != 0) {
         log.error('payload bad length', req.payload.toString('hex'));
         res.code = 400;
@@ -72,9 +73,10 @@ server.on('request', function (req, res) {
     
     for (let i = 0; i < req.payload.length; i+=2) {
         const sensorId = req.payload.readUInt8(i);
-        const value = req.payload.readUInt8(i+1)
+        const value = req.payload.readUInt8(i+1);
         client.publish(`${config.mqttTopicPrefix}/channels/${sensorId}`, value > 0 ? 'ON' : 'OFF', {retain: true});
     }
+    res.code = 205;
     
     res.end();
 })

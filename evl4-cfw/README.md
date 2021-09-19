@@ -5,7 +5,7 @@ Custom FW for EVL-4 by Envisalink
 
 **Note The Second**: This project was a fun way to spend a few evenings building an IP stack from scratch, and reverse engineering some hardware. The fact that I just wrote "building an IP stack from scratch" should imply this, but to make it abundantly clear: *I cannot in any way recommend you make use of this project*. It's written for my super narrow use case, without most of the flexibility you need to actually customize this for your network and system. Feel free to make use of the reverse engineering docs though - those are accurate to the best of my knowledge.
 
-**Note The Third**: This isn't "complete" in any way shape or form. I built a minimum set of functionality I need to make it work in my application. Not all of it is clean and nice, but it works for what I need it to, and that's what counts :)
+**Note The Third**: This isn't "complete" in any way shape or form. I built a minimum set of functionality I need to make it work in my application. Not all of it is clean and nice, but it works for what I need it to, and that's what counts :) **If, after all these warnings, you're interested in using this at all, open an issue in this repo and I'll spend some time putting a bow on it.**
 
 
 After purchasing an EVL-4 "UNO" to get some convential alarm sensors into Home Assistant,
