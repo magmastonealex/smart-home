@@ -5,6 +5,7 @@
 #include "dbgserial.h"
 #include <string.h>
 #include <avr/pgmspace.h>
+#include "rand.h"
 
 #include "alarm.h"
 
@@ -223,6 +224,8 @@ void init_coaprouter() {
     for (uint8_t i = 0; i < NUM_ENDPOINTS; i++) {
        coap_endpoints[i].strlen = strlen_P(coap_endpoints[i].path);
     }
+    // start msgids at a random number to avoid collisions.
+    sensoracks = random_get();
 }
 
 
@@ -259,7 +262,7 @@ static void send_update(uint8_t type, uint8_t *upd, uint8_t update_len, uint16_t
     
     coapOutputBuffer.len = UDP_PKT_START + usedLen;
 
-    udp_sendto(IPADDR_FROM_OCTETS(192, 168, 50, 1), 5683, 5683, &coapOutputBuffer);
+    udp_sendto(IPADDR_FROM_OCTETS(192, 168, 50, 1), 5683, 5689, &coapOutputBuffer);
 }
 
 uint8_t updateScratch[NUM_SENSORS*2];

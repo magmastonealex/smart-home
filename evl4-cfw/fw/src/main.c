@@ -8,6 +8,7 @@
 #include <inttypes.h>
 
 #include "netstack.h"
+#include "rand.h"
 #include "wdt.h"
 
 #include "dbgserial.h"
