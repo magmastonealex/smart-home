@@ -9,34 +9,37 @@ Custom FW for EVL-4 by Envisalink
 
 
 After purchasing an EVL-4 "UNO" to get some convential alarm sensors into Home Assistant,
-I found the default firmware lacking. The "TPI" interface seems broken and unable to report on zone state,
-and trips the alarm on the unit regularly. These are super reliable and well regarded boards when paired with a DSC/Honeywell
+I found the default firmware lacking. There is [no way](http://forum.eyez-on.com/FORUM/viewtopic.php?f=6&t=5233) to get alarm state & live-updates off the unit, and attempts to firewall it will result in reboots every 20 minutes. These are super reliable and well regarded boards when paired with a DSC/Honeywell
 alarm panel (which I don't have), so I was a bit disappointed. I'm hoping they fix this in a future firmware update (which by installing this project I've ensured I'll never receive! :) ).
 
 The hardware, however, seems to work great.
 
-The UNO-8 module is interesting, over something like Konnected.io, because it has support for
-detecting EOL resistors, and two outputs for a siren or similar. They can also be easily daisy-chained.
+The UNO-8 module is interesting, over something like Konnected.io, because it has support for detecting EOL resistors, and two outputs for a siren or similar. They can also be easily daisy-chained.
 
 The EVL-4 board has an ATXMega64D4, and an ASIX Ethernet PHY/MAC capable of 10/100 Ethernet. The XMEGA's PDI interface is exposed via an external connector.
 
 The two boards communicate over a relatively simple I2C protocol (full docs coming eventually. Notes.txt has some details).
 I could just hook it up to an esp8266 and call it a day, but I'd prefer hard-wired solutions for an alarm system.
 
-Given the board's relatively simple layout & well-documented components, I'm going to try to write a custom firmware for it
-which can report sensor states to an MQTT server. We'll see how far I get.
+Given the board's relatively simple layout & well-documented components, I've been able to implement a custom firmware which reports sensor states over CoAP to a translating broker which re-publishes over MQTT.
 
-Things I'm working on:
+Things that are done:
 
-- [x] Reverse engineering board layout (done! See notes.txt. Needs some better docs)
-- [x] Reverse engineer UNO-8 protocol (Mostly done, see notes.txt. Need to better understand the two output channels.)
+- [x] Reverse engineering board layout (done! See docs/board.md)
+- [x] Reverse engineer UNO-8 protocol (Mostly done, see docs/uno8.md, notes.txt. Need to better understand the two output channels.)
 - [X] Implement a test program to demonstrate the UNO-8 can work independently (in progress!)
 - [X] Bring up a basic firmware to test functionality of the EVL-4 (serial, LEDs)
-- [X] Add support for the Ethernet PHY/MAC via uIP
+- [X] Add support for the Ethernet PHY/MAC
+- [X] Write a UDP/IP stack, since nothing quite fits the bill.
 - [X] Add support for CoAP to report sensor states and configure the board
 - [X] Bring in the UNO-8 library developed as part of the test program to finish things up.
+- [X] A proof-of-concept broker to send requests from CoAP to MQTT.
 
+I've built out enough functionality for my needs, but in my spare time I might build:
 
-The board-level code is "complete" as far as I need, barring any yet to be found bugs.
-
-I'm working on a better broker than what's in broker/ - I don't like go-coap and how it seems to reply with nonsense sometimes.
+- [ ] OTA upgrade mechanisim using CoAP.
+- [ ] Actually use the LEDs for something.
+- [ ] Configuration for IP stack - MAC programmed into apptable, IP configurable and in EEPROM
+- [ ] Routing support for IP stack - just need to do some netmask checking.
+- [ ] Figure out how to trigger outputs & piezo on the UNO-8 board based on captured I2C flowlogs.
+- [ ] Probing i2c for UNO-8 boards and auto-configuring the application.
