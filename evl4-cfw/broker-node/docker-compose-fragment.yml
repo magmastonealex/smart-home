@@ -1,0 +1,7 @@
+  coapbroker:
+    restart: unless-stopped
+    image: aroth-coapbroker:1.0.0
+    volumes:
+      - ./coapbroker:/config
+    ports:
+      - "5683:5683/udp"
