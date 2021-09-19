@@ -56,13 +56,6 @@ var mqttClient mqtt.Client
 
 var heartbeatChan chan<- struct{}
 
-func loggingMiddleware(next mux.Handler) mux.Handler {
-	return mux.HandlerFunc(func(w mux.ResponseWriter, r *mux.Message) {
-		log.Printf("ClientAddress %v, %v\n", w.Client().RemoteAddr(), r.String())
-		next.ServeCOAP(w, r)
-	})
-}
-
 func handleA(w mux.ResponseWriter, req *mux.Message) {
 	fullBody, err := io.ReadAll(req.Body)
 	if err != nil {
@@ -136,7 +129,6 @@ func main() {
 	}
 
 	r := mux.NewRouter()
-	r.Use(loggingMiddleware)
 	r.Handle("/publish", mux.HandlerFunc(handleA))
 
 	log.Fatal(coap.ListenAndServe("udp", ":5683", r))

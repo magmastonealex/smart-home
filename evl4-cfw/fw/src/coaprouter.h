@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include "coap.h"
 // A rough-around-the-edges coap implementation, to go along with my rough-around-the-edges UDP/IP stack :)
 // You probably want to just use microcoap or CoAP-simple-library or similar.
 // This is purpose built to handle two (and only two) things:
@@ -21,3 +22,14 @@ void coaprouter_periodic();
 
 void coap_update_sensor(uint8_t sensorid, uint8_t value);
 void coap_mark_ready();
+
+extern uint8_t coapScratch[100];
+// Callbacks will need to set:
+// resp->hdr->code_class
+// resp->hdr->code_detail
+// any options of interest
+// a payload.
+// The payload (& options) need to live on after this returns (don't put it on the stack!)
+// but don't need to live on once called again.
+// coapScratch is available & reccommended for this purpose.
+typedef void (*coapCallback)(void* data, coap_pkt* req, coap_pkt *res, sk_buff *buf);

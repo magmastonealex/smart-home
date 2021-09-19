@@ -5,12 +5,8 @@
 #include <string.h>
 #include <avr/pgmspace.h>
 
+#include "alarm.h"
 
-// TODOs:
-//  - plumb interval into main.
-//
-
-const char wellknownsdresp[] PROGMEM = "</rawvalues>;title=\"current raw adc values. Returns 8 bytes, one per channel.\",\n";
 const char pubsubendpoint[] PROGMEM = "publish";
 
 
@@ -64,12 +60,18 @@ uint8_t sensorsReady = 0;
 coap_sensor allSensors[] = {
     {0},
     {1, 0, 0, 0, 0},
-    {2, 0, 0, 0, 0}
+    {2, 0, 0, 0, 0},
+    {3, 0, 0, 0, 0},
+    {4, 0, 0, 0, 0},
+    {5, 0, 0, 0, 0},
+    {6, 0, 0, 0, 0},
+    {7, 0, 0, 0, 0},
 };
-#define NUM_SENSORS 3
+#define NUM_SENSORS 8
 
 void coap_update_sensor(uint8_t sensorid, uint8_t value) {
     if(allSensors[sensorid].value != value) {
+        DBGprintf("U: %x", sensorid);
         allSensors[sensorid].value = value;
         allSensors[sensorid].dirty = 1;
         allSensors[sensorid].sendtimer = 0;
@@ -107,27 +109,16 @@ void coap_sensor_resp_received(uint16_t ackid) {
     
 }
 
-void cb_servicediscovery(void* data, coap_pkt* req, coap_pkt *res, sk_buff *buf) {
-    coapScratch[0] = 40; // content-type - link-format.
-    uint16_t datalen = strlen_P(wellknownsdresp);
-    memcpy_P(coapScratch+1, wellknownsdresp, datalen);
-    res->hdr->code_class = 2;
-    res->hdr->code_detail = 5;
-
-    res->options[0].option_number = COAP_OPTION_CONTENT_FORMAT;
-    res->options[0].option_value.len = 1;
-    res->options[0].option_value.p = coapScratch;
-
-    res->data.len = datalen;
-    res->data.p = coapScratch+1;
-}
-
-const char endpointspath[] PROGMEM = ".endpoints";
+const char getexpectpath[] PROGMEM = "getexpect";
+const char setexpectpath[] PROGMEM = "setexpect";
+const char getcurrentpath[] PROGMEM = "getcurrent";
 
 coap_endpoint coap_endpoints[] = {
-    {.path = endpointspath, .strlen = 0, .callback = cb_servicediscovery, .data = NULL}
+    {.path = getexpectpath, .strlen = 0, .callback = cb_getexpectedvalues, .data = NULL},
+    {.path = setexpectpath, .strlen = 0, .callback = cb_setexpectedvalues, .data = NULL},
+    {.path = getcurrentpath, .strlen = 0, .callback = cb_getcurrentvalues, .data = NULL},
 };
-#define NUM_ENDPOINTS 1
+#define NUM_ENDPOINTS 3
 
 void coaprouter_udp_handler(void *data, sk_buff *buf) {
     memset((uint8_t*)&inpkt, 0, sizeof(coap_pkt));

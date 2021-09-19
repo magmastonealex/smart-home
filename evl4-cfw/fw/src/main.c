@@ -12,6 +12,9 @@
 #include "dbgserial.h"
 #include "nic.h"
 #include "timer.h"
+#include "twi.h"
+
+#include "alarm.h"
 
 #include "coaprouter.h"
 
@@ -20,8 +23,13 @@ int main() {
 	PORTD.DIR |= (1<<1) | (1<<0);
 	PORTD.OUT |= (1<<0);
 	PORTB.DIR |= (1<<0);
+	// always enable the NIC - netstack will reset it when ready. The chip gets very hot if you leave it in reset for more than a few seconds.
+	// Not the first weird thing about it.
 	PORTB.OUT |= (1<<0);
+
+
 	// Switch to 32MHz operation.
+
 	// Enable 32Mhz & 32.768KHz clocks.
 	OSC.CTRL |= OSC_RC32MEN_bm | OSC_RC32KEN_bm;
 	// Wait for 32Mhz and 23Khz clocks to stabilize...
@@ -38,29 +46,26 @@ int main() {
 	netstack_init();
 	sei();
 	PMIC.CTRL |= PMIC_LOLVLEN_bm;
+
 	init_timers();
-	
+	init_twi();
 	init_coaprouter();
 
-	coap_mark_ready();	
+	init_monitoring();
 
 	//PORTD.OUT |= (1<<3);
 	uint8_t coapinterval = 5;
-	uint8_t last_rtc_tick = 0x00;
 	uint8_t last_timer_tick = 0x00;
 	while(1) {
+		// netstack should be polled as often as possible to avoid dropping any packets.
 		netstack_loop();
 
-		// don't care about absolute values, just care about changes in the low byte.
-		if (last_rtc_tick != (rtc_get_ticks() & 0x00FF)) {
-			last_rtc_tick = (uint8_t)(rtc_get_ticks() & 0x00FF);
-			// 1 second tick. For now, we'll use this to change a sensor's state.
-			coap_update_sensor(1, (uint8_t)(last_rtc_tick & 0x00FF));
-		}
 
 		if (last_timer_tick != (timer_get_ticks() & 0x00FF)) {
 			last_timer_tick = (uint8_t)(timer_get_ticks() & 0x00FF);
-			// 10ms tick.
+			// monitoring_periodic wants 10ms ticks.
+			monitoring_periodic();
+			// 10ms tick, divided by 5 for coap...
 			coapinterval--;
 			if (coapinterval == 0) {
 				coapinterval = 5;
