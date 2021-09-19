@@ -4,7 +4,7 @@
 - [X] Start implementing IP stack, since I just need some basic UDP bits.....
 - [X] CoAP server/client support.
 - [ ] ~TFTP OTA upgrades - punting on this for now. Might get back to it later.~
-- [ ] IN PROGRESS - CoAP pubsub server & client implementation.
-- [ ] Bring in the UNO-8 library developed as part of the test program
-- [ ] Implement support for the RTC peripheral
-- [ ] Add hardware + SW support for a power-cycling relay to reset the entire system.
+- [X] IN PROGRESS - CoAP pubsub server & client implementation.
+- [X] Bring in the UNO-8 library developed as part of the test program
+- [X] Implement support for the RTC peripheral
+- [ ] ~Add hardware + SW support for a power-cycling relay to reset the entire system.~ - eh. WDT reset seems to do well enough. Only need this if UNO-8 crashes.
