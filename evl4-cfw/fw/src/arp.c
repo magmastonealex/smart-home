@@ -59,6 +59,9 @@ static uint8_t find_arp_slot() {
 }
 
 void complete_arp(uint8_t *addr, uint32_t host) {
+    DBGprintf("got ARP resp for");
+    print_ip(host);
+    DBGprintf("\n");
     for (uint8_t i = 0; i < NUM_ARP_ENTRIES; i++)
     {
         if (arp_entries[i].ip == host) {
@@ -115,6 +118,7 @@ void arp_fill(uint8_t *hwaddr, uint32_t ipaddr) {
                 // found it!
                 arp_entries[i].use_time = 255;
                 memcpy(hwaddr, arp_entries[i].hwaddr, 6);
+                return;
             }
             // already looking for it, didn't find it. Broadcast.
             memset(hwaddr, 0xFF, 6);

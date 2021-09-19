@@ -292,7 +292,7 @@ void coaprouter_periodic() {
                 allSensors[i].sendtimer = SENSOR_RETRY_INTERVAL_50MS;
                 DBGprintf("R %x\n", i);
                 allSensors[i].retries++;
-                if (allSensors[i].retries == 20) { // 8 seconds no response... something's bad...
+                if (allSensors[i].retries == 30) { // 8 seconds no response... something's bad...
                     watchdog_sw_reset();
                 }
                 updateScratch[0] = i;
