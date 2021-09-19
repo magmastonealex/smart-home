@@ -1,6 +1,7 @@
 #include "coaprouter.h"
 #include "udp.h"
 #include "coap.h"
+#include "wdt.h"
 #include "dbgserial.h"
 #include <string.h>
 #include <avr/pgmspace.h>
@@ -46,12 +47,13 @@ typedef struct {
     uint8_t dirty;
     uint8_t sendtimer;
     uint16_t ack;
+    uint8_t retries;
 } coap_sensor;
 
 uint16_t sensoracks = 1;
 
 #define REPORT_ALL_INTERVAL_50MS 60
-#define SENSOR_RETRY_INTERVAL_50MS 20
+#define SENSOR_RETRY_INTERVAL_50MS 8
 // In units of 50ms, how long till next report-all gets triggered?
 // Normally done every 3 seconds, also serves as our heartbeat.
 // This report-all is sent non-reliably, given the frequency.
@@ -59,13 +61,13 @@ uint8_t sensorsReportAllTimer = 0;
 uint8_t sensorsReady = 0;
 coap_sensor allSensors[] = {
     {0},
-    {1, 0, 0, 0, 0},
-    {2, 0, 0, 0, 0},
-    {3, 0, 0, 0, 0},
-    {4, 0, 0, 0, 0},
-    {5, 0, 0, 0, 0},
-    {6, 0, 0, 0, 0},
-    {7, 0, 0, 0, 0},
+    {1, 0, 0, 0, 0, 0},
+    {2, 0, 0, 0, 0, 0},
+    {3, 0, 0, 0, 0, 0},
+    {4, 0, 0, 0, 0, 0},
+    {5, 0, 0, 0, 0, 0},
+    {6, 0, 0, 0, 0, 0},
+    {7, 0, 0, 0, 0, 0},
 };
 #define NUM_SENSORS 8
 
@@ -75,6 +77,7 @@ void coap_update_sensor(uint8_t sensorid, uint8_t value) {
         allSensors[sensorid].value = value;
         allSensors[sensorid].dirty = 1;
         allSensors[sensorid].sendtimer = 0;
+        allSensors[sensorid].retries = 0;
         allSensors[sensorid].ack = sensoracks++;
         if (allSensors[sensorid].ack == 0) {
             allSensors[sensorid].ack = sensoracks++;
@@ -90,6 +93,7 @@ void coap_mark_ready() {
     {
         allSensors[i].dirty = 1;
         allSensors[i].sendtimer = 2+i; // don't send all 8 at once...
+        allSensors[i].retries = 0;
         allSensors[i].ack = sensoracks++;
         if (allSensors[i].ack == 0) {
             allSensors[i].ack = sensoracks++;
@@ -132,7 +136,13 @@ void coaprouter_udp_handler(void *data, sk_buff *buf) {
     PORTD.OUTTGL = (1<<1);
     
     if (inpkt.hdr->type == COAP_TYPE_ACK) {
-        coap_sensor_resp_received(ntohs(inpkt.hdr->msgid_be));
+        // make sure it's an ack from the right thing...
+        // go-coap seems to be coming up with miracle-acks...
+        if (inpkt.hdr->tkl == 2) {
+            if ((*(uint16_t*)inpkt.token.p) == inpkt.hdr->msgid_be) {
+                coap_sensor_resp_received(ntohs(inpkt.hdr->msgid_be));
+            }
+        }
         return;
     }
     if (inpkt.hdr->type == COAP_TYPE_NON_CONFIRMABLE && inpkt.hdr->code_class == 0 && inpkt.hdr->code_detail == 0) {
@@ -224,8 +234,9 @@ static void send_update(uint8_t type, uint8_t *upd, uint8_t update_len, uint16_t
     outpkt.hdr->type = type;
     outpkt.hdr->ver = 1;
     
-    outpkt.token.len = 0;
-    outpkt.hdr->tkl = 0;
+    outpkt.token.len = 2;
+    outpkt.token.p = (uint8_t*)&outpkt.hdr->msgid_be;
+    outpkt.hdr->tkl = 2;
 
     outpkt.hdr->code_class = 0;
     outpkt.hdr->code_detail = 2;
@@ -268,7 +279,7 @@ void coaprouter_periodic() {
             sensoracks++;
         }
         send_update(COAP_TYPE_NON_CONFIRMABLE, updateScratch, NUM_SENSORS*2, msgid);
-        sensorsReportAllTimer = REPORT_ALL_INTERVAL_50MS*3;
+        sensorsReportAllTimer = REPORT_ALL_INTERVAL_50MS*2;
     } else if (sensorsReady) {
         sensorsReportAllTimer--;
     }
@@ -280,6 +291,10 @@ void coaprouter_periodic() {
             if (allSensors[i].sendtimer == 0) {
                 allSensors[i].sendtimer = SENSOR_RETRY_INTERVAL_50MS;
                 DBGprintf("R %x\n", i);
+                allSensors[i].retries++;
+                if (allSensors[i].retries == 20) { // 8 seconds no response... something's bad...
+                    watchdog_sw_reset();
+                }
                 updateScratch[0] = i;
                 updateScratch[1] = allSensors[i].value;
                 send_update(COAP_TYPE_CONFIRMABLE, updateScratch, 2, allSensors[i].ack);

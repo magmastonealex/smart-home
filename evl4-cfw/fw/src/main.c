@@ -8,6 +8,7 @@
 #include <inttypes.h>
 
 #include "netstack.h"
+#include "wdt.h"
 
 #include "dbgserial.h"
 #include "nic.h"
@@ -41,8 +42,17 @@ int main() {
 	CCP = CCP_IOREG_gc;
 	CLK.CTRL = CLK_SCLKSEL_RC32M_gc;
 
+	
+
 	init_serial();
 	DBGprintf("hello world\n");
+	if (RST.STATUS & RST_WDRF_bm) {
+		DBGprintf("WARN: WDT reset\n");
+	} else if (RST.STATUS & RST_SRF_bm) {
+		DBGprintf("WARN: SW reset\n");
+	} else if (RST.STATUS & RST_PDIRF_bm) {
+		DBGprintf("WARN: PDI reset\n");
+	}
 	netstack_init();
 	sei();
 	PMIC.CTRL |= PMIC_LOLVLEN_bm;
@@ -52,6 +62,7 @@ int main() {
 	init_coaprouter();
 
 	init_monitoring();
+	
 
 	//PORTD.OUT |= (1<<3);
 	uint8_t coapinterval = 5;

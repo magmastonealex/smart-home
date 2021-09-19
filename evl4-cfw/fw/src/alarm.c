@@ -1,7 +1,9 @@
+#include "wdt.h"
 #include "alarm.h"
 #include "dbgserial.h"
 #include "twi.h"
 #include "coap.h"
+#include "eeprom.h"
 #include "coaprouter.h"
 #include <string.h>
 
@@ -48,7 +50,6 @@ void cb_setexpectedvalues(void* data, coap_pkt* req, coap_pkt *res, sk_buff *buf
         res->hdr->code_detail = 0; // 4.00 - bad request.
         res->data.len = 0;
     } else {
-
         res->hdr->code_class = 2;
         res->hdr->code_detail = 4; // 4.00 - bad request.
         
@@ -62,7 +63,10 @@ void cb_setexpectedvalues(void* data, coap_pkt* req, coap_pkt *res, sk_buff *buf
         res->data.len = 8;
         res->data.p = expectvalues;
 
-        // TODO: Commit the changed values to EEPROM.
+        for (uint8_t i = 0; i < 8; i++)
+        {
+            eeprom_write(EEPROM_SENSOR_NORMAL_START + i, expectvalues[i]);
+        }
     }
 
     
@@ -72,10 +76,16 @@ void cb_setexpectedvalues(void* data, coap_pkt* req, coap_pkt *res, sk_buff *buf
 static uint8_t readcounter = 0;
 static uint8_t processedfirst = 0;
 void init_monitoring() {
-    // TODO: Read in expectValues from EEPROM.
+    for (uint8_t i = 0; i < 8; i++)
+    {
+        expectvalues[i] = eeprom_read(EEPROM_SENSOR_NORMAL_START + i);
+    }
+    
     readcounter = 0;
     processedfirst = 0;
     twiReq.data = twiResp;
+
+    watchdog_init();
 }
 
 // Called every ~10ms.
@@ -94,6 +104,7 @@ void monitoring_periodic() {
         if (twiReq.success != 0) {
             DBGprintf("req fulfilled with err %u!\n", twiReq.success);
         } else {
+            watchdog_kick();
             memcpy(sensorvalues_raw, twiReq.data, 8);
             sensorvalues_dirty = 1;
             // reset req so we don't process it again.
