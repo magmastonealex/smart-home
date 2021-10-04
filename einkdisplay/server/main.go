@@ -1,5 +1,12 @@
 package main
 
+// TODOs:
+//  - Home Assistant module
+//  - Entity widgets for HA
+//  - Alarm system widget
+//  - MQTT connection
+//    - Fire off RFIDs, receive refresh info. r
+
 import (
 	"einkserver/weather"
 	"einkserver/widgets"
@@ -28,9 +35,6 @@ func main() {
 
 	ww.Draw(dc)
 
-	// Each day of week is 70 pixels wide.
-	// We start at a fixed offset...
-
 	cw := &widgets.CalendarWidget{
 		Placement: &widgets.WidgetPlacement{
 			X: 50,
@@ -38,6 +42,7 @@ func main() {
 			W: 350,
 			H: 900,
 		},
+		Events: []string{},
 	}
 
 	cw.Draw(dc)
