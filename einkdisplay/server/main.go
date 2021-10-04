@@ -10,12 +10,29 @@ package main
 import (
 	"einkserver/weather"
 	"einkserver/widgets"
+	"encoding/json"
+	"io/ioutil"
 
 	"github.com/disintegration/imaging"
 	"github.com/fogleman/gg"
 )
 
 func main() {
+
+	configBytes, err := ioutil.ReadFile("config.json")
+	if err != nil {
+		panic(err)
+	}
+
+	var configFile struct {
+		Feeds              []string `json:"feeds"`
+		WeatherStationCode string   `json:"stationCode"`
+	}
+
+	if err := json.Unmarshal(configBytes, &configFile); err != nil {
+		panic(err)
+	}
+
 	dc := gg.NewContext(480, 800)
 	dc.SetRGB(1, 1, 1)
 	dc.Clear()
@@ -23,7 +40,7 @@ func main() {
 
 	ww := &widgets.WeatherWidget{
 		Weather: &weather.EnvCanadaWeather{
-			StationCode: "ON/s0000573_e",
+			StationCode: configFile.WeatherStationCode,
 		},
 		Placement: &widgets.WidgetPlacement{
 			X: 60,
@@ -42,7 +59,7 @@ func main() {
 			W: 350,
 			H: 900,
 		},
-		Events: []string{},
+		Events: configFile.Feeds,
 	}
 
 	cw.Draw(dc)
@@ -74,15 +91,6 @@ func main() {
 			w.WriteHeader(200)
 
 			w.Write(imgres)
-		})
-
-		http.HandleFunc("/carddata", func(w http.ResponseWriter, r *http.Request) {
-			fmt.Println("Got card read")
-			fmt.Println(r.URL.String())
-			w.Header().Add("Content-Length", "2")
-			w.Header().Add("Content-Type", "text/plain")
-			w.WriteHeader(200)
-			w.Write([]byte("OK"))
 		})
 
 		log.Fatal(http.ListenAndServe(":8080", nil))
