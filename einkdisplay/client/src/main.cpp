@@ -16,6 +16,7 @@
 uint8_t screenBuf[800] = { 0 };
 
 void connect() {
+  Serial.println("connect");
   WiFi.begin(WLAN_SSID, WLAN_PASS);
   WiFi.mode(WIFI_STA);
   WiFi.setSleepMode(WIFI_LIGHT_SLEEP);
@@ -23,7 +24,11 @@ void connect() {
     delay(100);
     ESP.wdtFeed();
   }
+Serial.println("connected");
 }
+
+HTTPClient http;
+WiFiClient wifiClient;
 
 void redraw() {
     Epd epd;
@@ -34,9 +39,7 @@ void redraw() {
     }
 
     Serial.println("Fetching img...");
-    HTTPClient http;
-    WiFiClient wifiClient;
-    http.begin(wifiClient, "http://10.9.0.1:8991/getimg");
+    http.begin(wifiClient, "http://10.9.30.1:8991/getimg");
 
     Serial.println("GET");
     int httpCode = http.GET();
@@ -60,6 +63,7 @@ void redraw() {
     while (http.connected() && (len > 0 || len == -1)) {
       // read up to 800 bytes
       int c = stream->readBytes(screenBuf, std::min((size_t)len, sizeof(screenBuf)));
+      ESP.wdtFeed();
       if (!c) {
         Serial.println("read timeout");
         continue;
@@ -80,17 +84,18 @@ void redraw() {
     epd.SendCommand(0x12);
     Serial.println("Done!");
     http.end();
-    
+    Serial.println("ended");    
 
     delay(100);
     epd.WaitUntilIdle();
-
+    Serial.println("idle done");
     
     ESP.wdtFeed();
     Serial.print("e-Paper Clear\r\n ");
     //epd.Clear();
 
     epd.Sleep();
+    Serial.println("sleep return;");
 }
 
 unsigned long lastRedraw = 0;
@@ -124,10 +129,10 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   unsigned long elapsed = millis() - lastRedraw;
-  if (lastRedraw == 0 || (elapsed > 600000)) {
+  if (lastRedraw == 0 || (elapsed > 1200000)) {
     redraw();
     lastRedraw = millis();
   }
   ArduinoOTA.handle();
-  delay(10);
+  delay(100);
 }

@@ -69,7 +69,7 @@ func (cw *CalendarWidget) Draw(dc *gg.Context) {
 
 	txtSize := findTextPtSize(dc, (cw.Placement.W/7)-5, cw.Placement.H, "XXX")
 	fmt.Println(txtSize)
-	if err := dc.LoadFontFace("/usr/share/fonts/TTF/DejaVuSansMono-Bold.ttf", float64(txtSize)); err != nil {
+	if err := dc.LoadFontFace(FontFace, float64(txtSize)); err != nil {
 		panic(err)
 	}
 
@@ -83,10 +83,10 @@ func (cw *CalendarWidget) Draw(dc *gg.Context) {
 	daysOffset := cw.Placement.X + 10
 	daysIncrement := cw.Placement.W / 7
 	for idx, val := range days {
-		dc.DrawString(val, float64(daysOffset)+float64((float64(idx)*daysIncrement)), float64(calBaseVidx+40))
+		dc.DrawString(val, float64(daysOffset)+float64((float64(idx)*daysIncrement)), float64(calBaseVidx+50))
 	}
 
-	vidx := calBaseVidx + 70
+	vidx := calBaseVidx + 80
 	for i := 1; i <= numDays; i++ {
 		today := time.Date(now.Year(), now.Month(), i, 0, 0, 0, 0, time.UTC)
 
@@ -127,14 +127,14 @@ func (cw *CalendarWidget) Draw(dc *gg.Context) {
 	}
 	vidx += 40
 
-	txtSize = findTextPtSize(dc, (cw.Placement.W)-5, 40, "Jan 02 - Hello World This Is An Event S")
-	if err := dc.LoadFontFace("/usr/share/fonts/TTF/DejaVuSansMono-Bold.ttf", float64(txtSize)); err != nil {
+	txtSize = findTextPtSize(dc, (cw.Placement.W)-5, 40, "Jan 02: Hello World This Is An Ev")
+	if err := dc.LoadFontFace(FontFace, float64(txtSize)); err != nil {
 		panic(err)
 	}
 	evMax := int(math.Min(6, float64(len(events))))
 	for _, e := range events[:evMax] {
-		sumMax := int(math.Min(30, float64(len(e.Summary))))
-		dc.DrawStringAnchored(fmt.Sprintf("%s - %s", e.Start.Format("Jan 02"), e.Summary[:sumMax]), cw.Placement.X+(cw.Placement.W/2), vidx, 0.5, 0.5)
+		sumMax := int(math.Min(25, float64(len(e.Summary))))
+		dc.DrawStringAnchored(fmt.Sprintf("%s:%s", e.Start.Format("Jan 02"), e.Summary[:sumMax]), cw.Placement.X+(cw.Placement.W/2), vidx, 0.5, 0.5)
 		vidx += 40
 	}
 

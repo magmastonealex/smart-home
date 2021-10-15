@@ -6,7 +6,7 @@ package widgets
 
 import "github.com/fogleman/gg"
 
-const FontFace string = "/usr/share/fonts/TTF/DejaVuSansMono-Bold.ttf"
+const FontFace string = "/usr/share/fonts/ttf-dejavu/DejaVuSansMono-Bold.ttf"
 
 type Widget interface {
 	Draw(dc *gg.Context)
