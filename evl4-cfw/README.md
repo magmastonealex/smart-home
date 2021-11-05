@@ -40,6 +40,7 @@ I've built out enough functionality for my needs, but in my spare time I might b
 - [ ] OTA upgrade mechanisim using CoAP.
 - [ ] Actually use the LEDs for something.
 - [ ] Configuration for IP stack - MAC programmed into apptable, IP configurable and in EEPROM
+- [ ] syslog support for interesting log messages
 - [ ] Routing support for IP stack - just need to do some netmask checking.
 - [ ] Figure out how to trigger outputs & piezo on the UNO-8 board based on captured I2C flowlogs.
 - [ ] Probing i2c for UNO-8 boards and auto-configuring the application.
