@@ -1,0 +1,41 @@
+---
+- name: Install and configure Nomad on the cluster
+  hosts: cluster
+  become: yes
+  vars:
+  tasks:
+    - name: install nomad and Docker
+      pacman:
+        update_cache: no
+        name:
+          - nomad
+          - docker
+    - name: Ensure bridge hack is in place
+      lineinfile:
+        path: '/lib/modules/{{ansible_kernel}}/modules.builtin'
+        state: present
+        line: '_/bridge.ko'
+    - name: mkdir /opt/nomad
+      file:
+        path: /opt/nomad
+        state: directory
+    - name: generate default.hcl
+      template:
+        src: 'nomad.hcl.j2'
+        dest: /etc/nomad.d/defaults.hcl
+      register: nomad_conf
+    - name: Ensure Docker is started and enabled
+      service:
+        name: docker
+        state: started
+        enabled: yes
+    - name: Ensure nomad is started and enabled
+      service:
+        name: nomad
+        state: started
+        enabled: yes
+    - name: Reload nomad if defaults.hcl has changed
+      service:
+        name: nomad
+        state: reloaded
+      when: nomad_conf.changed

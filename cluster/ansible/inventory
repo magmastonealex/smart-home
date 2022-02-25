@@ -1,0 +1,9 @@
+[all:vars]
+ansible_connection=ssh
+ansible_user=root
+ansible_ssh_pass=nomad
+
+[cluster]
+192.168.56.80 nomad_class=primary
+192.168.56.81 nomad_class=primary
+192.168.56.82 nomad_class=primary

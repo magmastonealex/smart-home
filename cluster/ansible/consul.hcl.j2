@@ -1,0 +1,20 @@
+datacenter = "dc1"
+data_dir = "/opt/consul"
+encrypt = "{{consulkey}}"
+verify_incoming = true
+verify_outgoing = true
+verify_server_hostname = true
+
+ca_file = "/etc/consul.d/certs/consul-agent-ca.pem"
+cert_file = "/etc/consul.d/certs/dc1-server-consul-{{ansible_hostname}}.pem"
+key_file = "/etc/consul.d/certs/dc1-server-consul-{{ansible_hostname}}-key.pem"
+
+server = true
+bootstrap_expect = 3
+bind_addr = "{% raw %}{{ GetInterfaceIP \"eth1\" }}{% endraw %}"
+
+retry_join = [{% for host in groups['cluster'] if not ansible_hostname == hostvars[host]['ansible_hostname'] %}"{{ hostvars[host]['ansible_eth1']['ipv4']['address'] }}" {{ ", " if not loop.last else "" }}{% endfor %}]
+
+auto_encrypt {
+  allow_tls = true
+}
