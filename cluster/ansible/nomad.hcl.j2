@@ -17,7 +17,13 @@ server {
 client {
   enabled = true
   node_class = "{{nomad_class}}"
-
+  host_network "public" {
+    cidr = "192.168.56.0/24"
+    reserved_ports = "22,80"
+  }
+  options = {
+    docker.volumes.enabled = true
+  }
   meta {
     loc = "alexhome"
   }

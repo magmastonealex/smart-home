@@ -29,6 +29,20 @@
         name: docker
         state: started
         enabled: yes
+    - name: mkdir /opt/cni/bin
+      file:
+        path: /opt/cni/bin
+        state: directory
+    - name: Download cni plugins
+      get_url:
+        checksum: sha256:05d46ac19d01669d424ee57401c0deba101763ac494858064b4ea4ffdcc37c5d
+        url: 'https://github.com/containernetworking/plugins/releases/download/v1.1.0/cni-plugins-linux-amd64-v1.1.0.tgz'
+        dest: /opt/cni/cni-plugins.tgz
+    - name: extract CNI plugins
+      unarchive:
+        src: /opt/cni/cni-plugins.tgz
+        remote_src: yes
+        dest: /opt/cni/bin 
     - name: Ensure nomad is started and enabled
       service:
         name: nomad
@@ -37,5 +51,5 @@
     - name: Reload nomad if defaults.hcl has changed
       service:
         name: nomad
-        state: reloaded
+        state: restarted
       when: nomad_conf.changed

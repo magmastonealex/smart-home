@@ -1,0 +1,72 @@
+---
+- name: All hosts running Glusterfs
+  hosts: cluster
+  become: yes
+  tasks:
+    - name: install Gluster
+      pacman:
+        update_cache: no
+        name:
+          - glusterfs
+    - name: Ensure Gluster is started and enabled
+      service:
+        name: glusterd
+        state: started
+        enabled: yes
+    - name: mkdir /opt/gluster
+      file:
+        path: /opt/gluster
+        state: directory
+- name: Use one server to peer to rest and create volume
+  hosts: cluster[0]
+  become: yes
+  tasks:
+    - name: Peer probe
+      command:
+        cmd: "gluster peer probe {{ item }}"
+      loop: "{{ query('inventory_hostnames', 'cluster[1:]') }}"
+    - name: Check if volume exists
+      command:
+        cmd: "gluster volume info gv1"
+      ignore_errors: true
+      register: volume_exists
+    - name: Create volume if not exists
+      when: 'volume_exists is failed'
+      register: volume_create
+      command:
+        cmd: 'gluster volume create gv1 replica 3 {% for host in groups["cluster"] %} "{{ hostvars[host]["ansible_hostname"] }}:/opt/gluster/brick"{% endfor %} force'
+    - name: Start volume
+      when: 'volume_exists is failed'
+      command:
+        cmd: "gluster volume start gv1"
+      ignore_errors: true
+- name: glusterfs volume mounted
+  hosts: cluster
+  become: yes
+  tasks:
+    - name: Ensure localhost is set up
+      lineinfile:
+        path: '/etc/hosts'
+        state: present
+        line: '127.0.0.1	{{ ansible_hostname }}'
+    - name: Create mountpoint
+      file:
+        path: /dockershare
+        state: directory
+    - name: Make fstab entry
+      lineinfile:
+        path: '/etc/fstab'
+        state: present
+        line: '{{ ansible_hostname }}:/gv1 /dockershare glusterfs defaults,_netdev,x-systemd.requires=glusterd.service,x-systemd.automount 0 0'
+    - name: Mount
+      command:
+        cmd: "mount /dockershare"
+
+#- name: Create Gluster volume (from one server)
+#  hosts: cluster[0]
+#  become: yes
+#  tasks:
+#    - name:
+#      file:
+#        path: /opt/gluster
+#        state: directory
