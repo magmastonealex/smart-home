@@ -1,0 +1,26 @@
+---
+- name: Install and configure BIRD for anycast service on the cluster
+  hosts: cluster
+  become: yes
+  vars:
+  tasks:
+    - name: install bird
+      pacman:
+        update_cache: no
+        name:
+          - bird
+    - name: generate bird.conf
+      template:
+        src: 'bird.conf.j2'
+        dest: /etc/bird.conf
+      register: bird_conf
+    - name: Ensure bird is started and enabled
+      service:
+        name: bird
+        state: started
+        enabled: yes
+    - name: Restart bird if defaults.hcl has changed
+      service:
+        name: bird
+        state: restarted
+      when: bird_conf.changed

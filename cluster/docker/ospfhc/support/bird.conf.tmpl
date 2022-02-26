@@ -1,0 +1,31 @@
+# Configure logging
+log stderr all;
+
+# Set router ID. It is a unique identification of your router, usually one of
+# IPv4 addresses of the router. It is recommended to configure it explicitly.
+router id ROUTER_ID;
+
+protocol direct {
+     ipv4;
+}
+
+# The Device protocol is not a real routing protocol. It does not generate any
+# routes and it only serves as a module for getting information about network
+# interfaces from the kernel. It is necessary in almost any configuration.
+protocol device {
+}
+
+
+protocol ospf v2 {
+        ipv4 {
+          import none;
+export all; # REPLACE ME
+        };
+  area 0 {
+    interface "eth*" {
+      cost 1;
+      hello HELLO_INTERVAL;
+    };
+  };
+}
+

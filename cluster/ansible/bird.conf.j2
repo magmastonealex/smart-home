@@ -1,0 +1,45 @@
+# Configure logging
+log stderr all;
+
+# Set router ID. It is a unique identification of your router, usually one of
+# IPv4 addresses of the router. It is recommended to configure it explicitly.
+router id {{ ansible_eth1['ipv4']['address'] }};
+
+protocol direct {
+	ipv4;			# Connect to default IPv4 table
+}
+
+# The Device protocol is not a real routing protocol. It does not generate any
+# routes and it only serves as a module for getting information about network
+# interfaces from the kernel. It is necessary in almost any configuration.
+protocol device {
+}
+
+
+protocol kernel {
+  ipv4 {
+    export all;
+    import none;
+  };
+}
+
+
+protocol ospf v2 {
+        ipv4 {
+          import all;
+          export all;
+        };
+  area 0 {
+    interface "nomad" {
+      cost 1;
+      hello 2;
+      dead count 4;
+    };
+    interface "eth*" {
+      cost 2;
+      hello 5;
+      dead count 4;
+    };
+  };
+}
+

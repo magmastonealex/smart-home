@@ -11,7 +11,7 @@
 #
 #     https://www.nomadproject.io/docs/job-specification/job
 #
-job "dns" {
+job "dnstuff" {
   datacenters = ["dc1"]
   type = "service"
 
@@ -125,7 +125,20 @@ job "dns" {
         cpu    = 500 # 500 MHz
         memory = 256 # 256MB
       }
+    }
+    task "advertise" {
+      driver = "docker"
 
+      config {
+        image = "archlinux:latest"
+        entrypoint = ["/bin/bash", "-c", "sleep 10000"]
+        cap_add = ["net_admin", "net_broadcast", "net_raw"]
+      }
+
+      resources {
+        cpu    = 10 # 500 MHz
+        memory = 500 # 256MB
+      }
     }
   }
 }

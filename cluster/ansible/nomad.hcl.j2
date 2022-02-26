@@ -21,12 +21,17 @@ client {
     cidr = "192.168.56.0/24"
     reserved_ports = "22,80"
   }
-  options = {
-    docker.volumes.enabled = true
-  }
+  bridge_network_subnet = "{{nomad_subnet}}" 
   meta {
     loc = "alexhome"
   }
 }
 
-
+plugin "docker" {
+  config {
+    volumes {
+      enabled      = true
+    }
+    allow_caps = ["net_raw", "net_broadcast", "net_admin", "audit_write", "chown", "dac_override", "fowner", "fsetid", "kill", "mknod", "net_bind_service", "setfcap", "setgid", "setpcap", "setuid", "sys_chroot"]
+  }
+}
