@@ -57,3 +57,23 @@ resource "vault_token_auth_backend_role" "nomad-cluster" {
   token_period           = "259200"
   renewable              = true
 }
+
+
+resource "vault_mount" "kv2-generic-secrets" {
+  path        = "secret"
+  type        = "kv-v2"
+  description = "generic secrets"
+}
+
+
+resource "vault_policy" "test-policy-temp" {
+  name = "test-policy-temp"
+
+  policy = <<EOT
+# Allow creating tokens under "nomad-cluster" token role. The token role name
+# should be updated if "nomad-cluster" is not used.
+path "secret/data/hellotest" {
+  capabilities = ["read"]
+}
+EOT
+}

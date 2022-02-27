@@ -1,0 +1,26 @@
+---
+- name: Unseal the Ansible Vault on all hosts
+  hosts: cluster
+  become: yes
+  vars_files:
+    - unseal_secrets.yml
+    - notsecret.yml
+  tasks:
+    - name: Unseal 1
+      environment:
+        VAULT_TLS_SERVER_NAME: "{{ansible_hostname}}.{{ my_domain }}"
+      command:
+        cmd: 'vault operator unseal {{vault_unseal_1}}'
+    - name: Unseal 2
+      environment:
+        VAULT_TLS_SERVER_NAME: "{{ansible_hostname}}.{{ my_domain }}"
+      command:
+        cmd: 'vault operator unseal {{vault_unseal_2}}'
+    - name: Unseal 3
+      environment:
+        VAULT_TLS_SERVER_NAME: "{{ansible_hostname}}.{{ my_domain }}"
+      command:
+        cmd: 'vault operator unseal {{vault_unseal_3}}' 
+
+
+      
