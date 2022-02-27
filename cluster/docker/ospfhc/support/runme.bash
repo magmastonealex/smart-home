@@ -25,7 +25,7 @@ set -e
 
 makebad
 # fork bird off as a daemon
-bird -c /etc/bird.conf
+bird -d -c /etc/bird.conf &
 
 
 while true; do

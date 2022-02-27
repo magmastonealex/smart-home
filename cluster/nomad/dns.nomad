@@ -128,11 +128,21 @@ job "dnstuff" {
     }
     task "advertise" {
       driver = "docker"
-
+      env {
+        ROUTER_ID="10.243.123.${NOMAD_ALLOC_INDEX}"
+        HELLO_INTERVAL="2"
+        VIP_ADVERTISE="10.88.99.33"
+      }
       config {
-        image = "archlinux:latest"
-        entrypoint = ["/bin/bash", "-c", "sleep 10000"]
+        image = "docker.svcs.alexroth.me/anycaster:latest"
         cap_add = ["net_admin", "net_broadcast", "net_raw"]
+        volumes = ["new/hc.sh:/healthcheck.sh" ]
+      }
+      template {
+        data = "#!/bin/bash \n\n exit 0"
+        destination = "new/hc.sh"
+        perms = "777"
+        
       }
 
       resources {
