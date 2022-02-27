@@ -1,0 +1,8 @@
+vault {
+  enabled = true
+  address = "https://{{ansible_eth1['ipv4']['address']}}:8200"
+  tls_server_name = "{{ansible_hostname}}.{{my_domain}}"
+  token = "{{vault_tokens[ansible_hostname]}}"
+  create_from_role = "nomad-cluster"
+}
+

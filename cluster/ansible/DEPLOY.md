@@ -12,4 +12,9 @@
 8. Run the ansible playbooks for gluster, bird, and nomad.
 9. Grab your new Nomad token - nomad acl bootstrap (I don't have need for more restrictive tokens since I'm the only one doing things anyways)
 9. Set NOMAD_AUTH accordingly, and apply an anonymous read-only policy: nomad acl policy apply -description "Anonymous policy (full-access)" anonymous anonymous_nomad.hcl
+10. Deploy vault - run the tls and vault playbooks.
+11. Set export VAULT_TLS_SERVER_NAME=vm3.... and VAULT_ADDR=... and run `vault status` to ensure things came up.
+12. Initialize Vault in the usual way - vault operator init and friends.
+13. Set your VAULT_TOKEN, and do a terraform apply in install_setup_nomad.yml to set up policies.
+14. Run make vault_secrets.yml to generate vault tokens, and apply the nomad_vault playbook to configure Nomad to use Vault.
 9. Enjoy your shiny new cluster.

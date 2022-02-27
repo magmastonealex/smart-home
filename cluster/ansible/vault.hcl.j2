@@ -1,0 +1,29 @@
+cluster_addr  = "https://{{ansible_eth1['ipv4']['address']}}:8201"
+api_addr      = "https://{{ansible_eth1['ipv4']['address']}}:8200"
+disable_mlock = true
+
+ui = true
+
+listener "tcp" {
+  address            = "0.0.0.0:8200"
+  tls_cert_file      = "/var/lib/vault/fullchain.pem"
+  tls_key_file       = "/var/lib/vault/privkey.pem"
+  tls_client_ca_file = "/var/lib/vault/ca.pem"
+}
+
+storage "raft" {
+  path    = "/opt/vault/data"
+  node_id = "{{ansible_hostname}}"
+
+{% for host in groups['cluster'] if not ansible_hostname == hostvars[host]['ansible_hostname'] %}
+  retry_join {
+    leader_tls_servername   = "{{hostvars[host]['ansible_hostname']}}.{{my_domain}}"
+    leader_api_addr         = "https://{{ hostvars[host]['ansible_eth1']['ipv4']['address'] }}:8200"
+    leader_ca_cert_file     = "/var/lib/vault/ca.pem"
+    leader_client_cert_file = "/var/lib/vault/fullchain.pem"
+    leader_client_key_file  = "/var/lib/vault/privkey.pem"
+  }
+{% endfor %}
+}
+
+

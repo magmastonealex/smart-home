@@ -4,3 +4,5 @@ Description=Let's Encrypt renewal
 [Service]
 Type=oneshot
 ExecStart=/usr/bin/certbot renew --quiet --agree-tos
+ExecStartPost=/bin/bash -c 'cp /etc/letsencrypt/live/%H.svcs.alexroth.me/*.pem /var/lib/vault'
+ExecStartPost=/bin/bash -c 'chown vault:vault /var/lib/vault/*.pem'

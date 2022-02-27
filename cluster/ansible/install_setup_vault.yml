@@ -1,0 +1,60 @@
+---
+- name: Install and configure Vault for secrets management on the cluster.
+  hosts: cluster
+  become: yes
+  vars_files:
+    - notsecret.yml 
+  tasks:
+    - name: install vault
+      pacman:
+        update_cache: no
+        name:
+          - vault
+    - name: mkdir /opt/vault/
+      file:
+        name: /opt/vault/
+        owner: vault
+        group: vault
+        state: directory
+    - name: mkdir /opt/vault/data
+      file:
+        name: /opt/vault/data
+        owner: vault
+        group: vault
+        state: directory
+    - name: mkdir /etc/systemd/system/vault.service.d
+      file:
+        name: /etc/systemd/system/vault.service.d
+        state: directory
+    - name: isrg root ca
+      copy:
+        src: ca.pem
+        dest: /var/lib/vault/ca.pem
+        owner: vault
+        group: vault
+    - name: "invoke certbot"
+      service:
+        name: certbot.service
+        state: started
+    - name: copy vault override file
+      copy:
+        src: 'vault-override.conf'
+        dest: /etc/systemd/system/vault.service.d/override.conf
+    - name: systemctl daemon-reload
+      command:
+        cmd: 'systemctl daemon-reload'
+    - name: generate vault.hcl
+      template:
+        src: 'vault.hcl.j2'
+        dest: /etc/vault.hcl
+      register: 'vault_conf'
+    - name: Ensure vault is started and enabled
+      service:
+        name: vault
+        state: started
+        enabled: yes
+    - name: Restart vault if defaults.hcl has changed
+      service:
+        name: vault
+        state: restarted
+#      when: vault_conf.changed
