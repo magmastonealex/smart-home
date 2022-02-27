@@ -20,6 +20,15 @@ unix_sockets = {
 
 retry_join = [{% for host in groups['cluster'] if not ansible_hostname == hostvars[host]['ansible_hostname'] %}"{{ hostvars[host]['ansible_eth1']['ipv4']['address'] }}" {{ ", " if not loop.last else "" }}{% endfor %}]
 
+acl = {
+  enabled = true
+  default_policy = "deny"
+  enable_token_persistence = true
+  tokens = {
+    agent = "{{ consultokens[ansible_hostname] }}"
+  }
+}
+
 auto_encrypt {
   allow_tls = true
 }

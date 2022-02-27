@@ -13,6 +13,13 @@ server {
   enabled = true
   bootstrap_expect = 3
 }
+consul {
+  token = "{{ consultokens['nomad_' + ansible_hostname] }}"
+}
+
+acl {
+  enabled = true
+}
 
 client {
   enabled = true

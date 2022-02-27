@@ -2,7 +2,8 @@
 - name: Install and configure Nomad on the cluster
   hosts: cluster
   become: yes
-  vars:
+  vars_files:
+    - consul_secrets.yml
   tasks:
     - name: install nomad and Docker
       pacman:

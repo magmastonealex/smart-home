@@ -1,0 +1,39 @@
+---
+- name: Provide each host with a <hostname>.{{my_domain}} certificate, and set up certbot to auto-renew it.
+  hosts: cluster
+  become: yes
+  vars_files:
+    - notsecret.yml 
+  tasks:
+    - name: install certbot and support
+      pacman:
+        update_cache: no
+        name:
+          - python-pip
+          - certbot
+          - certbot-dns-google
+    - name: install pyparsing newer version
+      pip:
+        name: 'pyparsing==3.0.7'
+    - name: Copy svcaccount to host
+      copy:
+        src: 'tls/account.json'
+        dest: '/etc/svcaccount_dns.json'        
+        mode: "600"
+    - name: "Copy certbot service"
+      copy:
+        src: 'tls/certbot.service'
+        dest: '/etc/systemd/system/'
+    - name: "Copy certbot timer"
+      copy:
+        src: 'tls/certbot.timer'
+        dest: '/etc/systemd/system/'
+    - name: "Fetch certificate for hostname.{{my_domain}}"
+      command:
+        cmd: "certbot certonly --quiet --agree-tos -m '{{my_email}}' --dns-google --dns-google-credentials /etc/svcaccount_dns.json -d {{ansible_hostname}}.{{my_domain}}"
+    - name: Ensure certbot timer is started and enabled
+      service:
+        name: certbot.timer
+        state: started
+        enabled: yes
+
