@@ -136,13 +136,32 @@ job "dnstuff" {
       config {
         image = "docker.svcs.alexroth.me/anycaster:latest"
         cap_add = ["net_admin", "net_broadcast", "net_raw"]
-        volumes = ["new/hc.sh:/healthcheck.sh" ]
+        volumes = ["new/hc.sh:/healthcheck.sh", "/run/consul/consul.sock:/consul.sock" ]
       }
       template {
-        data = "#!/bin/bash \n\n exit 0"
+        data = <<EOH
+#!/bin/bash
+
+set -euxo pipefail
+
+if ! dig +time=3 +tries=3 +short @127.0.0.1 google.com; then
+	echo "Can't reach local. Internet down?"
+	if dig +time=3 +tries=3 +short @1.1.1.1 facebook.com; then
+		echo "internet up, DNS down. Failing HC"
+                exit 1
+	else
+		if dig +time=5 +tries=3 +short @8.8.4.4 amazon.com; then
+                        echo "google up, cloudflare down, DNS down. Failing HC"
+                        exit 1
+                fi
+        fi
+                
+else
+	exit 0
+fi
+  EOH
         destination = "new/hc.sh"
-        perms = "777"
-        
+        perms = "777"       
       }
 
       resources {

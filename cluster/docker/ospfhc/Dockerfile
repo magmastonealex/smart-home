@@ -1,6 +1,6 @@
 from alpine:3.15.0
 
-RUN apk add --no-cache bash bird bind-tools
+RUN apk add --no-cache bash bird bind-tools curl
 
 ADD support/runme.bash /runme.bash
 ADD support/hc.sh /hc.sh

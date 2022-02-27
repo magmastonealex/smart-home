@@ -1,0 +1,10 @@
+# Basic iptables rules file. CNI, nomad, Docker will fill this out more.
+# This is just the VM prototyping phase. On the real cluster we'll want
+# to lock things down a bit more.
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+-A FORWARD -s {{ nomad_anycast_subnet }} -j ACCEPT
+-A FORWARD -d {{ nomad_anycast_subnet }} -j ACCEPT
+COMMIT

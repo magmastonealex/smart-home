@@ -12,6 +12,11 @@ key_file = "/etc/consul.d/certs/dc1-server-consul-{{ansible_hostname}}-key.pem"
 server = true
 bootstrap_expect = 3
 bind_addr = "{% raw %}{{ GetInterfaceIP \"eth1\" }}{% endraw %}"
+client_addr = "127.0.0.1 {{nomad_host_svc_ip}}"
+
+unix_sockets = {
+  mode = "777"
+}
 
 retry_join = [{% for host in groups['cluster'] if not ansible_hostname == hostvars[host]['ansible_hostname'] %}"{{ hostvars[host]['ansible_eth1']['ipv4']['address'] }}" {{ ", " if not loop.last else "" }}{% endfor %}]
 

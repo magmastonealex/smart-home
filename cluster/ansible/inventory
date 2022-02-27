@@ -2,6 +2,8 @@
 ansible_connection=ssh
 ansible_user=root
 ansible_ssh_pass=nomad
+nomad_host_svc_ip=10.220.254.1
+nomad_anycast_subnet=10.88.99.0/24
 
 [cluster]
 192.168.56.80 nomad_class=primary nomad_subnet=10.220.0.0/24

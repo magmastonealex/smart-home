@@ -49,6 +49,27 @@
         src: 'consul.hcl.j2'
         dest: /etc/consul.d/consul.hcl
       register: consul_conf
+    - name: mkdir /etc/systemd/system/consul.service.d/
+      file:
+        owner: consul
+        group: consul
+        path: /etc/systemd/system/consul.service.d/
+        state: directory
+    - name: copy lo ip file
+      template:
+        src: '10-lo-host-svc.network.j2'
+        dest: /etc/systemd/network/10-lo-svcs.network
+    - name: Restart systemd-networkd for lo change
+      service:
+        name: systemd-networkd
+        state: restarted
+    - name: copy consul override file
+      copy:
+        src: 'consul-override.conf'
+        dest: /etc/systemd/system/consul.service.d/override.conf
+    - name: systemctl daemon-reload
+      command:
+        cmd: 'systemctl daemon-reload'
     - name: mkdir /opt/consul
       file:
         owner: consul
@@ -63,5 +84,5 @@
     - name: Reload consul if consul.hcl has changed
       service:
         name: consul
-        state: reloaded
+        state: restarted
       when: consul_conf.changed
