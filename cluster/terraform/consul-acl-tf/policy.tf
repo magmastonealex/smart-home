@@ -48,6 +48,7 @@ session_prefix "" {
 node_prefix "" {
   policy = "read"
 }
+acl = "write"
 RULE
 }
 
