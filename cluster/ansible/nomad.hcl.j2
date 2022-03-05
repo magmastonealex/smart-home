@@ -28,15 +28,16 @@ client {
   #  cidr = "192.168.56.0/24"
   #  reserved_ports = "22,80"
   #}
-  host_network "default" {
-    cidr = "192.168.56.0/24"
-    reserved_ports = "22,80"
-  }
+  #host_network "default" {
+  #  cidr = "192.168.56.0/24"
+  #  reserved_ports = "22,80"
+  #}
 
   bridge_network_subnet = "{{nomad_subnet}}" 
   meta {
     loc = "alexhome"
     hostsvcaddr = "{{nomad_host_svc_ip}}"
+    "connect.log_level" = "debug"
   }
 }
 

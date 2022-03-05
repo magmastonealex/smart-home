@@ -10,12 +10,10 @@ job "traefik" {
       mode = "bridge"
       port "http" {
         to = 8080
-        host_network="default"
       }
 
       port "api" {
         to = 8081
-        host_network="default"
       }
     }
 
