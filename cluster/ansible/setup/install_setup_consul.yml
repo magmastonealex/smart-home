@@ -12,7 +12,7 @@
           66666363616630646138356565363338363234646137343936623763356363363563613266356263
           6630363863313439306665306234373235623965663939303363
   vars_files:
-    - consul_secrets.yml
+    - consul/consul_secrets.yml
   tasks:
     - name: install consul
       pacman:
@@ -27,28 +27,28 @@
         state: directory
     - name: copy consul ca root cert
       copy:
-        src: 'consul-ca/consul-agent-ca.pem'
+        src: 'consul/consul-ca/consul-agent-ca.pem'
         dest: /etc/consul.d/certs/
         owner: consul
         group: consul
         mode: '664'
     - name: copy consul ca cert
       copy:
-        src: 'consul-ca/dc1-server-consul-{{ansible_hostname}}.pem'
+        src: 'consul/consul-ca/dc1-server-consul-{{ansible_hostname}}.pem'
         dest: /etc/consul.d/certs/
         owner: consul
         group: consul
         mode: '664'
     - name: copy consul ca key
       copy:
-        src: 'consul-ca/dc1-server-consul-{{ansible_hostname}}-key.pem'
+        src: 'consul/consul-ca/dc1-server-consul-{{ansible_hostname}}-key.pem'
         dest: /etc/consul.d/certs/
         owner: consul
         group: consul
         mode: '660'
     - name: generate consul.hcl
       template:
-        src: 'consul.hcl.j2'
+        src: 'consul/consul.hcl.j2'
         dest: /etc/consul.d/consul.hcl
       register: consul_conf
     - name: mkdir /etc/systemd/system/consul.service.d/
@@ -57,17 +57,9 @@
         group: consul
         path: /etc/systemd/system/consul.service.d/
         state: directory
-    - name: copy lo ip file
-      template:
-        src: '10-lo-host-svc.network.j2'
-        dest: /etc/systemd/network/10-lo-svcs.network
-    - name: Restart systemd-networkd for lo change
-      service:
-        name: systemd-networkd
-        state: restarted
     - name: copy consul override file
       copy:
-        src: 'consul-override.conf'
+        src: 'consul/consul-override.conf'
         dest: /etc/systemd/system/consul.service.d/override.conf
     - name: systemctl daemon-reload
       command:

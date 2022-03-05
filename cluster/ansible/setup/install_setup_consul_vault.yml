@@ -3,12 +3,12 @@
   hosts: cluster
   become: yes
   vars_files:
-    - vault_secrets_consul.yml
-    - notsecret.yml
+    - consul/vault_secrets_consul.yml
+    - ../notsecret.yml
   tasks:
     - name: generate vault.hcl
       template:
-        src: 'consul-vault.hcl.j2'
+        src: 'consul/consul-vault.hcl.j2'
         mode: "600"
         owner: consul
         group: consul

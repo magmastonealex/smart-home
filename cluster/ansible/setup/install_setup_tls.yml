@@ -3,7 +3,7 @@
   hosts: cluster
   become: yes
   vars_files:
-    - notsecret.yml 
+    - ../notsecret.yml 
   tasks:
     - name: install certbot and support
       pacman:
@@ -36,7 +36,7 @@
   become: yes
   serial: 1
   vars_files:
-    - notsecret.yml 
+    - ../notsecret.yml 
   tasks:
     - name: "Fetch certificate for hostname.{{my_domain}}"
       command:

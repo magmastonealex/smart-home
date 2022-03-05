@@ -1,0 +1,22 @@
+---
+- name: Install and configure base iptables rules
+  hosts: cluster
+  become: yes
+  tasks:
+    - name: generate iptables.rules
+      template:
+        src: 'base/iptables.rules.j2'
+        dest: /etc/iptables/iptables.rules
+      register: bird_conf
+    - name: Ensure iptables rules are applied at boot time.
+      service:
+        name: iptables
+        enabled: yes
+    - name: copy lo ip file
+      template:
+        src: 'base/10-lo-host-svc.network.j2'
+        dest: /etc/systemd/network/10-lo-svcs.network
+    - name: Restart systemd-networkd for lo change
+      service:
+        name: systemd-networkd
+        state: restarted

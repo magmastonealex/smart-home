@@ -3,7 +3,7 @@
   hosts: cluster
   become: yes
   vars_files:
-    - notsecret.yml 
+    - ../notsecret.yml 
   tasks:
     - name: install vault
       pacman:
@@ -28,7 +28,7 @@
         state: directory
     - name: isrg root ca
       copy:
-        src: ca.pem
+        src: tls/ca.pem
         dest: /var/lib/vault/ca.pem
         owner: vault
         group: vault
@@ -38,14 +38,14 @@
         state: started
     - name: copy vault override file
       copy:
-        src: 'vault-override.conf'
+        src: 'vault/vault-override.conf'
         dest: /etc/systemd/system/vault.service.d/override.conf
     - name: systemctl daemon-reload
       command:
         cmd: 'systemctl daemon-reload'
     - name: generate vault.hcl
       template:
-        src: 'vault.hcl.j2'
+        src: 'vault/vault.hcl.j2'
         dest: /etc/vault.hcl
       register: 'vault_conf'
     - name: Ensure vault is started and enabled

@@ -3,12 +3,12 @@
   hosts: cluster
   become: yes
   vars_files:
-    - vault_secrets.yml
-    - notsecret.yml
+    - nomad/vault_secrets.yml
+    - ../notsecret.yml
   tasks:
     - name: generate vault.hcl
       template:
-        src: 'nomad-vault.hcl.j2'
+        src: 'nomad/nomad-vault.hcl.j2'
         mode: "600"
         dest: /etc/nomad.d/vault.hcl
     - name: Restart nomad with vault token

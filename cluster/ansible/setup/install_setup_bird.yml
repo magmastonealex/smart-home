@@ -11,7 +11,7 @@
           - bird
     - name: generate bird.conf
       template:
-        src: 'bird.conf.j2'
+        src: 'bird/bird.conf.j2'
         dest: /etc/bird.conf
       register: bird_conf
     - name: Ensure bird is started and enabled

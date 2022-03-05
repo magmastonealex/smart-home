@@ -3,7 +3,7 @@
   hosts: cluster
   become: yes
   vars_files:
-    - consul_secrets.yml
+    - consul/consul_secrets.yml
   tasks:
     - name: install nomad and Docker
       pacman:
@@ -22,7 +22,7 @@
         state: directory
     - name: generate default.hcl
       template:
-        src: 'nomad.hcl.j2'
+        src: 'nomad/nomad.hcl.j2'
         dest: /etc/nomad.d/defaults.hcl
       register: nomad_conf
     - name: Ensure Docker is started and enabled

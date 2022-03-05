@@ -1,5 +1,10 @@
 provider "vault" {
 }
+
+variable "CONSUL_HTTP_TOKEN" {
+  type = string
+}
+
 resource "vault_policy" "consul-server" {
   name = "consul-server"
 
@@ -87,11 +92,27 @@ resource "vault_token_auth_backend_role" "nomad-cluster" {
   renewable              = true
 }
 
-
 resource "vault_mount" "kv2-generic-secrets" {
   path        = "secret"
   type        = "kv-v2"
   description = "generic secrets"
+}
+
+resource "vault_consul_secret_backend" "consul" {
+  path        = "consul"
+  description = "Manages the Consul backend"
+
+  address = "127.0.0.1:8500"
+  token   = var.CONSUL_HTTP_TOKEN
+}
+
+resource "vault_consul_secret_backend_role" "example" {
+  name    = "traefik-role"
+  backend = vault_consul_secret_backend.consul.path
+
+  policies = [
+    "traefik-consul-access",
+  ]
 }
 
 resource "vault_policy" "test-policy-temp" {
@@ -110,7 +131,7 @@ resource "vault_policy" "traefik-policy" {
   name = "traefik-policy"
 
   policy = <<EOT
-path "secret/data/traefik_token" {
+path "${vault_consul_secret_backend.consul.path}/creds/traefik-role" {
   capabilities = ["read"]
 }
 EOT

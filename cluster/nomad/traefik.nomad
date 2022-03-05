@@ -103,7 +103,7 @@ EOH
     [providers.consulCatalog.endpoint]
       address = "{{ env "meta.hostsvcaddr" }}:8500"
       scheme  = "http"
-      token = "{{with secret "secret/data/traefik_token"}}{{.Data.data.token}}{{end}}"
+      token = "{{with secret "consul/creds/traefik-role"}}{{.Data.token}}{{end}}"
 EOF
 
         destination = "secrets/traefik.toml"
