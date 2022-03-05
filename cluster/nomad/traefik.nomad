@@ -10,26 +10,31 @@ job "traefik" {
       mode = "bridge"
       port "http" {
         to = 8080
-        host_network="public"
+        host_network="default"
       }
 
       port "api" {
         to = 8081
-        host_network="public"
+        host_network="default"
       }
     }
 
-    service {
-      name = "traefik"
-      port = "http"
-      check {
-        name     = "alive"
-        type     = "tcp"
-        port     = "http"
-        interval = "10s"
-        timeout  = "2s"
+      service {
+        name = "traefik"
+        port = "http"
+        task = "proxy"
+        check {
+          name     = "alive"
+          type     = "tcp"
+          port     = "http"
+          interval = "10s"
+          timeout  = "2s"
+        }
+
+        connect {
+          native = true
+        }
       }
-    }
 
     task "advertise" {
       driver = "docker"
@@ -62,15 +67,18 @@ EOH
     }
 
 
-    task "traefik" {
+    task "proxy" {
+      vault {
+          policies = ["traefik-policy"]
+      }
+
       driver = "docker"
 
       config {
-        image        = "traefik:v2.2"
+        image        = "traefik:v2.6.1"
 
         volumes = [
-          "local/traefik.toml:/etc/traefik/traefik.toml",
-          "/run/consul/consul.sock:/consul.sock"
+          "secrets/traefik.toml:/etc/traefik/traefik.toml",
         ]
       }
 
@@ -86,18 +94,21 @@ EOH
 [api]
     dashboard = true
     insecure  = true
-
+[log]
+    level = "DEBUG"
 # Enable Consul Catalog configuration backend.
 [providers.consulCatalog]
     prefix           = "traefik"
+    connectAware     = true
+    connectByDefault = true
     exposedByDefault = false
-
     [providers.consulCatalog.endpoint]
       address = "{{ env "meta.hostsvcaddr" }}:8500"
       scheme  = "http"
+      token = "{{with secret "secret/data/traefik_token"}}{{.Data.data.token}}{{end}}"
 EOF
 
-        destination = "local/traefik.toml"
+        destination = "secrets/traefik.toml"
       }
 
       resources {

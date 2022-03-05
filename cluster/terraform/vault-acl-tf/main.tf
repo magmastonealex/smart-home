@@ -1,5 +1,34 @@
 provider "vault" {
 }
+resource "vault_policy" "consul-server" {
+  name = "consul-server"
+
+  policy = <<EOT
+path  "/sys/mounts" {
+  capabilities = [ "read" ]
+}
+
+path "/sys/mounts/connect_root" {
+  capabilities = [ "create", "read", "update", "delete", "list" ]
+}
+path "/sys/mounts/connect_inter" {
+  capabilities = [ "create", "read", "update", "delete", "list" ]
+}
+path "/connect_root/*" {
+  capabilities = [ "create", "read", "update", "delete", "list" ]
+}
+path "/connect_inter/*" { 
+  capabilities = [ "create", "read", "update", "delete", "list" ]
+}
+
+path "auth/token/renew-self" {
+  capabilities = [ "update" ]
+}
+path "auth/token/lookup-self" {
+  capabilities = [ "read" ]
+}
+EOT
+}
 
 resource "vault_policy" "nomad-server" {
   name = "nomad-server"
@@ -65,7 +94,6 @@ resource "vault_mount" "kv2-generic-secrets" {
   description = "generic secrets"
 }
 
-
 resource "vault_policy" "test-policy-temp" {
   name = "test-policy-temp"
 
@@ -73,6 +101,16 @@ resource "vault_policy" "test-policy-temp" {
 # Allow creating tokens under "nomad-cluster" token role. The token role name
 # should be updated if "nomad-cluster" is not used.
 path "secret/data/hellotest" {
+  capabilities = ["read"]
+}
+EOT
+}
+
+resource "vault_policy" "traefik-policy" {
+  name = "traefik-policy"
+
+  policy = <<EOT
+path "secret/data/traefik_token" {
   capabilities = ["read"]
 }
 EOT

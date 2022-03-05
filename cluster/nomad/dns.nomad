@@ -14,7 +14,9 @@
 job "dnstuff" {
   datacenters = ["dc1"]
   type = "service"
-
+  spread {
+    attribute = "${node.unique.id}"    
+  }
    constraint {
      attribute = "${node.class}"
      value     = "primary"
@@ -37,7 +39,7 @@ job "dnstuff" {
   }
 
   group "cache" {
-    count = 1
+    count = 2
 
     network {
       mode = "bridge"

@@ -4,8 +4,6 @@ TODOs:
 - Configure Traefik for HTTPS
 - Configure Wireguard between cluster hosts and cloud VPS
 - Configure Gluster to run over Wireguard
-X Configure Consul Service Mesh, with relevant rules in place. (PoC complete
-- Set up Vault as Service Mesh CA.
-- Configure Traefik to use Consul Service Mesh
+- Configure Traefik to use Consul Service Mesh - done, but broken within Vagrant.
 - Configure anycast BGP peering with cloud VPS
 

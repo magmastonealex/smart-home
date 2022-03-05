@@ -17,4 +17,5 @@
 12. Initialize Vault in the usual way - vault operator init and friends.
 13. Set your VAULT_TOKEN, and do a terraform apply in install_setup_nomad.yml to set up policies.
 14. Run make vault_secrets.yml to generate vault tokens, and apply the nomad_vault playbook to configure Nomad to use Vault.
+15. Run make vault_secrets_consul.yml and apply consul_vault playbook to configure Consul Service Mesh with Vault.
 9. Enjoy your shiny new cluster.

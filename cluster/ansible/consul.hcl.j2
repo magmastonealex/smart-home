@@ -14,10 +14,6 @@ bootstrap_expect = 3
 bind_addr = "{% raw %}{{ GetInterfaceIP \"eth1\" }}{% endraw %}"
 client_addr = "127.0.0.1 {{nomad_host_svc_ip}}"
 
-connect {
-  enabled = true
-}
-
 ports {
   grpc = 8502
 }

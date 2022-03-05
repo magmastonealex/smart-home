@@ -1,0 +1,11 @@
+
+connect {
+ enabled = true
+ ca_provider = "vault"
+ ca_config {
+  address = "https://thishost.svcs.alexroth.me:8200"
+  token = "{{vault_tokens[ansible_hostname]}}"
+  root_pki_path = "connect_root"
+  intermediate_pki_path = "connect_inter"
+ }
+}

@@ -1,5 +1,5 @@
 ---
-- name: Provide each host with a <hostname>.{{my_domain}} certificate, and set up certbot to auto-renew it.
+- name: Configure certbot
   hosts: cluster
   become: yes
   vars_files:
@@ -28,12 +28,28 @@
       copy:
         src: 'tls/certbot.timer'
         dest: '/etc/systemd/system/'
+    - name: systemctl daemon-reload
+      command:
+        cmd: 'systemctl daemon-reload'
+- name: Provide each host with a <hostname>.{{my_domain}} certificate
+  hosts: cluster
+  become: yes
+  serial: 1
+  vars_files:
+    - notsecret.yml 
+  tasks:
     - name: "Fetch certificate for hostname.{{my_domain}}"
       command:
-        cmd: "certbot certonly --quiet --agree-tos -m '{{my_email}}' --dns-google --dns-google-credentials /etc/svcaccount_dns.json -d {{ansible_hostname}}.{{my_domain}}"
+        cmd: "certbot certonly --expand --quiet --agree-tos -m '{{my_email}}' --dns-google --dns-google-credentials /etc/svcaccount_dns.json -d {{ansible_hostname}}.{{my_domain}} -d thishost.{{my_domain}}"
     - name: Ensure certbot timer is started and enabled
       service:
         name: certbot.timer
         state: started
         enabled: yes
+    - name: Ensure certbot service is started and enabled (copy cert for vault & consul)
+      service:
+        name: certbot.service
+        state: started
+        enabled: yes
+
 

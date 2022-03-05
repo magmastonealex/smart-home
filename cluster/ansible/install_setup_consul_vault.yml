@@ -1,0 +1,19 @@
+---
+- name: Vault secrets inserted into Consul.
+  hosts: cluster
+  become: yes
+  vars_files:
+    - vault_secrets_consul.yml
+    - notsecret.yml
+  tasks:
+    - name: generate vault.hcl
+      template:
+        src: 'consul-vault.hcl.j2'
+        mode: "600"
+        owner: consul
+        group: consul
+        dest: /etc/consul.d/vault.hcl
+    - name: Restart consul with vault token
+      service:
+        name: consul
+        state: restarted

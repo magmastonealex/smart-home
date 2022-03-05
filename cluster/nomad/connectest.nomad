@@ -7,7 +7,7 @@ job "countdash" {
 
      service {
        name = "count-api"
-       port = "9001"
+       port = "9009"
 
        connect {
          sidecar_service {}
@@ -25,23 +25,21 @@ job "countdash" {
    group "dashboard" {
      network {
        mode ="bridge"
-       port "http" {
-         static = 9002
-         to     = 9002
-         host_network = "public"
-       }
      }
 
      service {
        name = "count-dashboard"
-       port = "9002"
-
+       port = "9010"
+      tags = [ 
+        "traefik.enable=true",
+        "traefik.http.routers.http.rule=Path(`/count`)",
+      ]
        connect {
          sidecar_service {
            proxy {
              upstreams {
                destination_name = "count-api"
-               local_bind_port = 8080
+               local_bind_port = 8087
              }
            }
          }

@@ -22,6 +22,18 @@ vaultsecret_%:
 
 vault_secrets.yml: createvaultsecrets vaultsecret_vm1 vaultsecret_vm2 vaultsecret_vm3
 
+
+createvaultsecrets_consul:
+	echo "---" > vault_secrets_consul.yml
+	echo "vault_tokens:" >> vault_secrets_consul.yml
+
+vaultsecret_consul_%:
+	ansible-vault encrypt_string --vault-password-file vault_pass.txt "$(shell vault token create -policy consul-server -period 768h -orphan | head -n 3 | tail -n 1 | awk '{print $$2}')" --name "  $(patsubst vaultsecret_consul_%,%,$@)" >> vault_secrets_consul.yml
+
+vault_secrets_consul.yml: createvaultsecrets_consul vaultsecret_consul_vm1 vaultsecret_consul_vm2 vaultsecret_consul_vm3
+
+
+
 clean:
 	make -C consul-ca $@
 

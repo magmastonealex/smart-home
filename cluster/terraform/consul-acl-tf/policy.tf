@@ -52,6 +52,31 @@ acl = "write"
 RULE
 }
 
+resource "consul_acl_policy" "consul-traefik-policy" {
+  name = "traefik-consul-access"
+  rules = <<-RULE
+key_prefix "traefik" {
+  policy = "write"
+}
+
+service "traefik" {
+  policy = "write"
+}
+
+agent_prefix "" {
+  policy = "read"
+}
+
+node_prefix "" {
+  policy = "read"
+}
+
+service_prefix "" {
+  policy = "read"
+}
+RULE
+}
+
 resource "consul_acl_policy" "consul-anonymous-policy" {
   name   = "anonymous-consul-access"
   rules  = <<-RULE
