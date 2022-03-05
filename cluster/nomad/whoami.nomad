@@ -6,12 +6,11 @@ job "whoami" {
 
     network {
       mode = "bridge"
-      port "web" {}
     }
 
     service {
       name = "whoami"
-      port = "web"
+      port = "8020"
 
       connect {
         sidecar_service {}
@@ -22,14 +21,6 @@ job "whoami" {
         "traefik.consulcatalog.connect=true",
         "traefik.http.routers.whoami.rule=Path(`/whoami`)",
       ]
-
-      check {
-        type     = "http"
-        path     = "/health"
-        port     = "web"
-        interval = "10s"
-        timeout  = "2s"
-      }
     }
 
     task "whoami" {
@@ -38,7 +29,7 @@ job "whoami" {
       config {
         image = "traefik/whoami"
         ports = ["web"]
-        args  = ["--port", "${NOMAD_PORT_web}"]
+        args  = ["--port", "8020"]
       }
 
       resources {
