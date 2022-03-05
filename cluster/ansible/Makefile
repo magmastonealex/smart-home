@@ -37,6 +37,7 @@ clean:
 	rm setup/consul/consul_secrets.yml
 	rm setup/nomad/vault_secrets.yml
 	rm setup/consul/vault_secrets_consul.yml
+        rm unseal_secrets.yml
 
 #ansible-playbook -i inventory install_setup_nomad.yml --vault-id vault_pass.txt
 
