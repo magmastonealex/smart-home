@@ -38,17 +38,15 @@
   vars_files:
     - ../notsecret.yml 
   tasks:
+    - name: "Sleep 60 seconds to avoid conflicts"
+      command:
+        cmd: "sleep 60"
     - name: "Fetch certificate for hostname.{{my_domain}}"
       command:
         cmd: "certbot certonly --expand --quiet --agree-tos -m '{{my_email}}' --dns-google --dns-google-credentials /etc/svcaccount_dns.json -d {{ansible_hostname}}.{{my_domain}} -d thishost.{{my_domain}}"
     - name: Ensure certbot timer is started and enabled
       service:
         name: certbot.timer
-        state: started
-        enabled: yes
-    - name: Ensure certbot service is started and enabled (copy cert for vault & consul)
-      service:
-        name: certbot.service
         state: started
         enabled: yes
 

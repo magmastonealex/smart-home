@@ -7,7 +7,7 @@
   tasks:
     - name: install vault
       pacman:
-        update_cache: no
+        update_cache: yes
         name:
           - vault
     - name: mkdir /opt/vault/

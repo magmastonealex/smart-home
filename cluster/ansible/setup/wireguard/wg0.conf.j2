@@ -1,0 +1,17 @@
+[Interface]
+Address = {{wg_ip}}/24  # The client IP from wg0server.conf with the same subnet mask
+PrivateKey = {{ wg_privkey.stdout }}
+ListenPort = {{ wg_port }}
+
+#[Peer]
+#PublicKey = BkiU6ehv2O11Ey59Pc9Ndn43QTyhRi1tV+49tDgCIAk=
+#Endpoint = magmastone.net:1195
+#AllowedIps = 10.100.0.1/32
+#PersistentKeepalive = 25
+
+{% for host in groups['cluster'] if not ansible_hostname == hostvars[host]['ansible_hostname'] %}
+[Peer]
+PublicKey = {{ hostvars[host]['ansible_local']['wireguard']['key']['pubkey'] }}
+Endpoint = {{hostvars[host]['ansible_lan0']['ipv4']['address']}}:{{wg_port}}
+AllowedIps = {{ hostvars[host]['wg_ip'] }}/32
+{% endfor %}

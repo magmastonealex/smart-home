@@ -16,15 +16,16 @@ Get ready to provision the cluster.
 
 1. Install & do initial Consul configuration - run `01_install_setup_consul.yml`. Confirm servers have found each other.
 2. Set up port forwarding to Consul over ssh (`ssh -L 8500:localhost:8500 root@<vm>`)
-3. Bootstrap Consul ACL system - `consul_acl_bootstrap`. Export this token as `CONSUL_HTTP_AUTH` and `TF_VAR_CONSUL_HTTP_AUTH`, and encrypt it: `ansible-vault encrypt_string --vault-password-file vault_pass.txt "$CONSUL_HTTP_AUTH" --name "consulkey" >> consul/consul_secrets.yml`
-4. Run `01_consul_acls.yml` to create all your tokens.
-5. Begin terraforming. In terraform/consul-acls-tf run `terraform init`, then import your tokens: `terraform import consul_acl_token.anonymous-token 00000000-0000-0000-0000-000000000002`, `terraform import 'consul_acl_token.agent-tokens["vm3"]' db2d...`, `terraform import 'consul_acl_token.nomad-tokens["vm3"]' db2d...`, etc for all of vm3, vm2, vm1.
-6. Run terraform apply to set up all of the policies.
+3. Bootstrap Consul ACL system - `consul_acl_bootstrap`. Export this token as `CONSUL_HTTP_AUTH` and `TF_VAR_CONSUL_HTTP_AUTH`, and encrypt it: `ansible-vault encrypt_string --vault-password-file vault_pass.txt "$CONSUL_HTTP_AUTH" --name "consul_management" >> consul/consul_secrets.yml`
+5. Begin terraforming. In terraform/consul-acls-tf, mv token.tf .., then run `terraform init`, then import your tokens: `terraform import consul_acl_token.anonymous-token 00000000-0000-0000-0000-000000000002`.
+5. Run `terraform apply` to set up policies.
+6. Run the `01_consul_acls.yml` to create all tokens. Then mv ../token.tf . `terraform import 'consul_acl_token.agent-tokens["vm3"]' db2d...`, `terraform import 'consul_acl_token.nomad-tokens["vm3"]' db2d...`, etc for all of vm3, vm2, vm1.
+6. terraform apply to set up all of the policies.
 7. Restart consul on all the servers, and check logs looking for ACL errors. `consul members` should show you membership.
 
 # Nomad
 
-1. Run keygen and encrypt the token with `ansible-vault encrypt_string --vault-password-file vault_pass.txt "$(nomad keygen)" --name "gossipkey" >> nomad/nomad_secrets.yml`
+1. Run keygen and encrypt the token with `ansible-vault encrypt_string --vault-password-file ../vault_pass.txt "$(nomad operator keygen)" --name "gossipkey" >> nomad/nomad_secrets.yml`
 1. Install & setup Nomad - run `02_install_setup_nomad.yml` and check logs to ensure servers have joined one another.
 1. Bootstrap the ACL subsystem - `nomad acl bootstrap`. Save this token as a `NOMAD_AUTH` env var.
 1. Apply the read-only anonymous policy (if you want). `nomad acl policy apply -description "Anonymous Policy (full access)" anonymous support/anonymous_nomad.hcl`

@@ -4,14 +4,15 @@ plugin_dir = "/usr/lib/nomad/plugins"
 
 advertise {
   # Defaults to the first private IP address.
-  http = "{{ansible_eth1['ipv4']['address']}}"
-  rpc  = "{{ansible_eth1['ipv4']['address']}}"
-  serf = "{{ansible_eth1['ipv4']['address']}}"
+  http = "{{ansible_lan0['ipv4']['address']}}"
+  rpc  = "{{ansible_lan0['ipv4']['address']}}"
+  serf = "{{ansible_lan0['ipv4']['address']}}"
 }
 
 server {
   enabled = true
   bootstrap_expect = 3
+  encrypt = "{{gossipkey}}"
 }
 consul {
   token = "{{ consultokens['nomad_' + ansible_hostname] }}"

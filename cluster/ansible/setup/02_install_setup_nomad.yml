@@ -4,6 +4,7 @@
   become: yes
   vars_files:
     - consul/consul_secrets.yml
+    - nomad/nomad_secrets.yml
   tasks:
     - name: install nomad and Docker
       pacman:
@@ -49,8 +50,8 @@
         name: nomad
         state: started
         enabled: yes
-    - name: Reload nomad if defaults.hcl has changed
-      service:
-        name: nomad
-        state: restarted
-      when: nomad_conf.changed
+#    - name: Reload nomad if defaults.hcl has changed
+#      service:
+#        name: nomad
+#        state: restarted
+#      when: nomad_conf.changed

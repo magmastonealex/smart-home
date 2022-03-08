@@ -1,0 +1,84 @@
+---
+- name: Install and configure Wireguard 
+  hosts: all
+  become: yes
+  vars:
+  tasks:
+    - name: generate private and public keys
+      shell:
+        cmd: 'wg genkey | (umask 0077 && tee /etc/wireguard/host.key) | wg pubkey > /etc/wireguard/pub.key'
+        creates: /etc/wireguard/host.key
+    - name: Create Ansible facts directory
+      file:
+        path: /etc/ansible/facts.d
+        state: directory
+    - name: "Read pubkey in"
+      shell: cat /etc/wireguard/pub.key
+      register: wg_pubkey
+    - name: "Write pubkey to Ansible facts directory"
+      template:
+        src: wireguard/fact.j2
+        dest: /etc/ansible/facts.d/wireguard.fact
+- name: Write out wg-quick config file on all hosts to form mesh
+  hosts: cluster
+  vars_files:
+    - wireguard/iplist.yml
+  become: yes
+  pre_tasks:
+    - name: Gather facts from cloud hosts
+      setup:
+      delegate_to: "{{ item }}"
+      delegate_facts: True
+      when: hostvars[item]['ansible_default_ipv4'] is not defined
+      with_items: "{{ groups['cloud'] }}"
+  tasks:
+    - name: Fetch privkey
+      command:
+        cmd: 'cat /etc/wireguard/host.key'
+      register: wg_privkey
+    - name: Write wgcluster_i.conf
+      template:
+        src: wireguard/wgcluster_host.conf.j2
+        dest: "/etc/wireguard/wgcloud{{groups['cloud'].index(item)}}.conf"
+        mode: '600'
+      with_items: "{{ groups['cloud']}}"
+    - name: Start wg-quick@wg
+      service:
+        name: "wg-quick@wgcloud{{groups['cloud'].index(item)}}"
+        state: restarted
+        enabled: yes
+      with_items: "{{ groups['cloud']}}"
+#    - name: Start wg-quick@wg0
+#      service:
+#        name: 'wg-quick@wg0'
+#        state: restarted
+#        enabled: yes
+- name: Write out wg-quick config file for use on cloud VPSes
+  hosts: cloud
+  vars_files:
+    - wireguard/iplist.yml
+  become: yes
+  pre_tasks:
+    - name: Gather facts from all cluster hosts
+      setup:
+      delegate_to: "{{ item }}"
+      delegate_facts: True
+      when: hostvars[item]['ansible_default_ipv4'] is not defined
+      with_items: "{{ groups['cluster'] }}"
+  tasks:
+    - name: Fetch privkey
+      command:
+        cmd: 'cat /etc/wireguard/host.key'
+      register: wg_privkey
+    - name: Write wgcluster_i.conf
+      template:
+        src: wireguard/wgcluster_cloud.conf.j2
+        dest: "/etc/wireguard/wgcluster{{groups['cluster'].index(item)}}.conf"
+        mode: '600'
+      with_items: "{{ groups['cluster']}}"
+    - name: Start wg-quick@wg
+      service:
+        name: "wg-quick@wgcluster{{groups['cluster'].index(item)}}"
+        state: restarted
+        enabled: yes
+      with_items: "{{ groups['cluster']}}"

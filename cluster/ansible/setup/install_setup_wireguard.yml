@@ -1,0 +1,44 @@
+---
+- name: Install and configure Wireguard wg0 between all cluster peers. 
+  hosts: cluster
+  become: yes
+  vars:
+  tasks:
+    - name: install wireguard
+      pacman:
+        update_cache: no
+        name:
+          - wireguard-tools
+    - name: generate private and public keys
+      shell:
+        cmd: 'wg genkey | (umask 0077 && tee /etc/wireguard/host.key) | wg pubkey > /etc/wireguard/pub.key'
+        creates: /etc/wireguard/host.key
+    - name: Create Ansible facts directory
+      file:
+        path: /etc/ansible/facts.d
+        state: directory
+    - name: "Read pubkey in"
+      shell: cat /etc/wireguard/pub.key
+      register: wg_pubkey
+    - name: "Write pubkey to Ansible facts directory"
+      template:
+        src: wireguard/fact.j2
+        dest: /etc/ansible/facts.d/wireguard.fact
+- name: Write out wg-quick config file on all hosts to form mesh
+  hosts: cluster
+  become: yes
+  tasks:
+    - name: Fetch privkey
+      command:
+        cmd: 'cat /etc/wireguard/host.key'
+      register: wg_privkey
+    - name: Write wg0.conf
+      template:
+        src: wireguard/wg0.conf.j2
+        dest: /etc/wireguard/wg0.conf
+        mode: '600'
+    - name: Start wg-quick@wg0
+      service:
+        name: 'wg-quick@wg0'
+        state: restarted
+        enabled: yes

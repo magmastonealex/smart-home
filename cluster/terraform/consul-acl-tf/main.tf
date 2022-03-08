@@ -5,6 +5,6 @@ provider "consul" {
 
 variable "nodes" {
    type = set(string)
-   default = ["vm1", "vm2", "vm3"] 
+   default = ["zeus", "thor", "mouse"] 
 }
 

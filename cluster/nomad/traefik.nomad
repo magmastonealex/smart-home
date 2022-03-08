@@ -3,6 +3,12 @@ job "traefik" {
   datacenters = ["dc1"]
   type        = "service"
 
+
+   constraint {
+     attribute = "${node.class}"
+     value     = "primary"
+   }
+
   group "traefik" {
     count = 1
 

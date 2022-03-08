@@ -3,7 +3,7 @@ log stderr all;
 
 # Set router ID. It is a unique identification of your router, usually one of
 # IPv4 addresses of the router. It is recommended to configure it explicitly.
-router id {{ ansible_lan0['ipv4']['address'] }};
+router id {{ ansible_eth0['ipv4']['address'] }};
 
 #protocol direct {
 #	ipv4;			# Connect to default IPv4 table
@@ -27,7 +27,7 @@ protocol device {
 
 protocol kernel {
   ipv4 {
-    export all;
+    export where net ~ [ {{nomad_anycast_subnet}}+ ];
     import none;
   };
 }
@@ -39,27 +39,18 @@ protocol ospf v2 {
           export where net ~ [ {{nomad_anycast_subnet}}+ ];
         };
   area 0 {
-    interface "nomad" {
-      cost 1;
-      hello 2;
-      dead count 4;
-    };
-    interface "lan0" {
-      cost 2;
-      hello 5;
-      dead count 4;
-    };
-    {% for host in groups['cloud'] %}
-    interface "wgcloud{{groups['cloud'].index(host)}}" {
+
+    {% for host in groups['cluster'] %}
+    interface "wgcluster{{groups['cluster'].index(host)}}" {
       cost 2;
       hello 5;
       dead count 4;
       type ptmp;
       neighbors {
-        {{ iplist[ansible_hostname + '-' + hostvars[host]['ansible_hostname']]['cloud'] }}; 
-      };  
-    
-    };  
+        {{ iplist[hostvars[host]['ansible_hostname'] + '-' + ansible_hostname]['host'] }};
+      };
+      
+    };
    {% endfor %}
   };
 }

@@ -1,6 +1,11 @@
 job "whoami" {
   datacenters = ["dc1"]
 
+   constraint {
+     attribute = "${node.class}"
+     value     = "primary"
+   } 
+
   group "whoami" {
     count = 2
 

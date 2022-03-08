@@ -1,4 +1,4 @@
-all: dc1-server-consul-vm1.pem dc1-server-consul-vm2.pem dc1-server-consul-vm3.pem
+all: dc1-server-consul-zeus.pem dc1-server-consul-thor.pem dc1-server-consul-mouse.pem
 
 consul-agent-ca.pem:
 	consul tls ca create

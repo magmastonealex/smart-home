@@ -1,0 +1,7 @@
+
+{% for host in groups['cluster']%}
+# Cluster host {{ hostvars[host]['ansible_hostname'] }}
+[Peer]
+PublicKey = {{ hostvars[host]['ansible_local']['wireguard']['key']['pubkey'] }}
+AllowedIps = {{ hostvars[host]['wg_ip'] }}/32, {{nomad_anycast_subnet}}
+{% endfor %}

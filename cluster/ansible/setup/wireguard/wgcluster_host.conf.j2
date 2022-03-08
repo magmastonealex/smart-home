@@ -1,0 +1,12 @@
+{% set ifkey=ansible_hostname + '-' + hostvars[item]['ansible_hostname'] %}
+[Interface]
+Address = {{ iplist[ifkey]['host'] }}/31
+PrivateKey = {{ wg_privkey.stdout }}
+ListenPort = {{ iplist[ifkey]['port'] }}
+MTU = 1380
+
+[Peer]
+PublicKey = {{ hostvars[item]['ansible_local']['wireguard']['key']['pubkey'] }}
+Endpoint = {{ hostvars[item]['external_ip']}}:{{ iplist[ifkey]['port'] }}
+PersistentKeepalive = 25
+AllowedIps = {{ iplist[ifkey]['cloud'] }}/32

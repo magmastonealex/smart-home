@@ -1,0 +1,15 @@
+---
+prefix: "31"
+iplist:
+  mouse-instance-1:
+    cloud: 10.20.106.0
+    host: 10.20.106.1
+    port: "1196"
+  thor-instance-1:
+    cloud: 10.20.106.2
+    host: 10.20.106.3
+    port: "1197"
+  zeus-instance-1:
+    cloud: 10.20.106.4
+    host: 10.20.106.5
+    port: "1198"

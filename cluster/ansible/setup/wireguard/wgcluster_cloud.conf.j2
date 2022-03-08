@@ -1,0 +1,10 @@
+{% set ifkey=hostvars[item]['ansible_hostname'] + '-' + ansible_hostname %}
+[Interface]
+Address = {{ iplist[ifkey]['cloud'] }}/31
+PrivateKey = {{ wg_privkey.stdout }}
+ListenPort = {{ iplist[ifkey]['port'] }}
+Table = off
+
+[Peer]
+PublicKey = {{ hostvars[item]['ansible_local']['wireguard']['key']['pubkey'] }}
+AllowedIps = {{ iplist[ifkey]['host'] }}/32, {{nomad_anycast_subnet}}

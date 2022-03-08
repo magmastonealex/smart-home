@@ -1,0 +1,13 @@
+---
+- name: Setup hosts file
+  hosts: cluster
+  become: yes
+  tasks:
+    - name: Configure hosts
+      lineinfile:
+        line: "{{ hostvars[item]['wg_ip'] }}\t{{ hostvars[item]['ansible_hostname'] }}"
+        backup: yes
+        state: present
+        path: /etc/hosts
+      when: "ansible_hostname != hostvars[item]['ansible_hostname']"
+      with_items: "{{ groups['cluster'] }}"
