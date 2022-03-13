@@ -32,6 +32,15 @@ protocol kernel {
   };
 }
 
+protocol bgp {
+  local as 65000;
+  passive;
+  neighbor {{bgp_router_ip}} as 65001;
+        ipv4 {
+          import none;
+          export where net ~ [ {{nomad_anycast_subnet}}+ ];
+        };
+}
 
 protocol ospf v2 {
         ipv4 {

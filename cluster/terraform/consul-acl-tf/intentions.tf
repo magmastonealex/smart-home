@@ -44,3 +44,17 @@ resource "consul_config_entry" "whoami-traefik" {
     ]
   })
 }
+
+resource "consul_config_entry" "wildcard-traefik" {
+  kind = "service-intentions"
+  name = "*"
+
+  config_json = jsonencode({
+    Sources = [
+      {
+        Name   = "traefik"
+        Action = "allow"
+      }
+    ]
+  })
+}

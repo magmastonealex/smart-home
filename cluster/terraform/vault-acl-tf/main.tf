@@ -134,5 +134,8 @@ resource "vault_policy" "traefik-policy" {
 path "${vault_consul_secret_backend.consul.path}/creds/traefik-role" {
   capabilities = ["read"]
 }
+path "secret/data/dns-svcaccount" {
+  capabilities = ["read"]
+}
 EOT
 }
