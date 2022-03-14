@@ -58,3 +58,17 @@ resource "consul_config_entry" "wildcard-traefik" {
     ]
   })
 }
+
+resource "consul_config_entry" "traefik-gitea-ssh" {
+  kind = "service-intentions"
+  name = "gitea-ssh"
+
+  config_json = jsonencode({
+    Sources = [
+      {
+        Name   = "gitea-ssh-frontend"
+        Action = "allow"
+      }
+    ]
+  })
+}

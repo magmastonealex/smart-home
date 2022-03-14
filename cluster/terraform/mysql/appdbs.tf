@@ -1,6 +1,6 @@
 
 variable "applications" {
-    default = ["hello"]
+    default = ["hello", "gitea"]
     type = set(string)
 }
 
