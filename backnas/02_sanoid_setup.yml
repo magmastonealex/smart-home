@@ -1,0 +1,20 @@
+---
+- name: Install and configure sanoid
+  hosts: all
+  tasks:
+    - name: Install build deps
+      pacman:
+        update_cache: no
+        name:
+          - base-devel
+    - name: Check for sanoid
+      command: pacman -Q sanoid
+    - name: "Write sanoid conf file"
+      template:
+        src: sanoid.conf
+        dest: /etc/sanoid/sanoid.conf
+    - name: Start sanoid timer
+      service:
+        name: 'sanoid.timer'
+        state: started
+        enabled: yes

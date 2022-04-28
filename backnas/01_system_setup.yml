@@ -1,0 +1,73 @@
+---
+- name: Install and configure base packages and users
+  hosts: all
+  tasks:
+    - name: Install packages
+      pacman:
+        update_cache: no
+        name:
+          - docker
+          - docker-compose
+          - screen
+          - sudo 
+    - name: Add Alex user
+      user:
+        name: alex
+        groups: docker
+        append: yes
+    - name: Provide alex sudo access
+      community.general.sudoers:
+        name: alexaccess
+        user: alex
+        commands: ALL
+    - name: Add Cynthia user
+      user:
+        name: cynthia
+        groups: docker
+        append: yes
+    - name: Write daemon.conf
+      template:
+        src: daemon.json
+        dest: /etc/docker/daemon.json
+    - name: Start Docker
+      service:
+        name: 'docker'
+        state: started
+        enabled: yes
+- name: Install and configure Wireguard wg0 
+  hosts: all
+  tasks:
+    - name: install wireguard
+      pacman:
+        update_cache: no
+        name:
+          - wireguard-tools
+    - name: generate private and public keys
+      shell:
+        cmd: 'wg genkey | (umask 0077 && tee /etc/wireguard/host.key) | wg pubkey > /etc/wireguard/pub.key'
+        creates: /etc/wireguard/host.key
+    - name: Create Ansible facts directory
+      file:
+        path: /etc/ansible/facts.d
+        state: directory
+    - name: "Read pubkey in"
+      shell: cat /etc/wireguard/pub.key
+      register: wg_pubkey
+    - name: Fetch privkey
+      command:
+        cmd: 'cat /etc/wireguard/host.key'
+      register: wg_privkey
+    - name: "Write pubkey to Ansible facts directory"
+      template:
+        src: wireguard/fact.j2
+        dest: /etc/ansible/facts.d/wireguard.fact
+    - name: Write wg0.conf
+      template:
+        src: wireguard/wg0.conf.j2
+        dest: /etc/wireguard/wg0.conf
+        mode: '600'
+    - name: Start wg-quick@wg0
+      service:
+        name: 'wg-quick@wg0'
+        state: restarted
+        enabled: yes

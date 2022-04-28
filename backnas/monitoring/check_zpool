@@ -1,0 +1,15 @@
+#! /bin/bash
+
+pool=$1
+
+if [[ -z "$pool" ]]; then
+	echo "Usage: $0 <pool name>"
+	exit 3
+fi
+
+HEALTH=$(zpool list -Ho health "$pool")
+if [[ "$HEALTH" != "ONLINE" ]]; then
+	echo "ZFS POOL $pool health is $HEALTH"; exit 2
+else
+	echo "ZFS POOL $pool OK"; exit 0
+fi

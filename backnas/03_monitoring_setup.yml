@@ -1,0 +1,43 @@
+---
+- name: Install and configure monitoring
+  hosts: all
+  vars_files:
+    monitoring/slack_token.yml
+  tasks:
+    - name: Install smartctl and sensors
+      pacman:
+        update_cache: no
+        name:
+          - smartmontools
+          - lm_sensors
+          - python-pip
+          - python-setuptools
+          - nrpe
+          - monitoring_plugins
+    - name: Install pip dependencies
+      pip:
+        name: slackclient
+    - name: "Write check_temp.py"
+      template:
+        src: monitoring/check_temp.py
+        dest: /bin/check_temp.py
+        mode: '744'
+    - name: "Write sendsmart.sh"
+      template:
+        src: monitoring/sendsmart.sh
+        dest: /bin/sendsmart.sh
+        mode: '744'
+    - name: "Write sendsmart.py"
+      template:
+        src: monitoring/sendsmart.py
+        dest: /bin/sendsmart.py
+        mode: '744'
+    - name: "Write smartd.conf"
+      template:
+        src: monitoring/smartd.conf
+        dest: /etc/smartd.conf
+    - name: Start smartd
+      service:
+        name: 'smartd'
+        state: started
+        enabled: yes
