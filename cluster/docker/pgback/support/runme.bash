@@ -15,7 +15,7 @@ fi
 MYSQL_HOST=$(cat /config.json | jq -r .host)
 MYSQL_PORT=$(cat /config.json | jq -r .port)
 MYSQL_USER=$(cat /config.json | jq -r .user)
-MYSQL_PASSWORD=$(cat /config.json | jq -r .password)
+PG_PASSWORD=$(cat /config.json | jq -r .password)
 MYSQL_DB=$(cat /config.json | jq -r .db)
 
 if [[ -z "$MYSQL_HOST" ]]; then
@@ -33,7 +33,7 @@ if [[ -z "$MYSQL_USER" ]]; then
 	exit 1
 fi
 
-if [[ -z "$MYSQL_PASSWORD" ]]; then
+if [[ -z "$PG_PASSWORD" ]]; then
 	echo "Must define password in config"
 	exit 1
 fi
@@ -43,11 +43,10 @@ if [[ -z "$MYSQL_DB" ]]; then
 	exit 1
 fi
 
-echo "[mysqldump]" > /etc/my.cnf
-echo "password=\"$MYSQL_PASSWORD\"" >> /etc/my.cnf
+echo "*:*:*:*:$PG_PASSWORD" > ~/.pgpass
+chmod 600 ~/.pgpass
 
-chmod 600 /etc/my.cnf
 
-mysqldump --no-tablespaces -u "$MYSQL_USER" -h "$MYSQL_HOST" -P "$MYSQL_PORT" "$MYSQL_DB" > /backup/dump-"$MYSQL_DB"-$(date +%s).sql
+pg_dump -U "$MYSQL_USER" -h "$MYSQL_HOST" -p "$MYSQL_PORT" "$MYSQL_DB" > /backup/dump-"$MYSQL_DB"-$(date +%s).sql
 
 find /backup/dump-*.sql -mtime +7 -exec rm -v {} \;

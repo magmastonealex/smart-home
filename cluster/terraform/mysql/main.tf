@@ -1,19 +1,12 @@
 terraform {
   required_providers {
-    mysql = {
-      source  = "winebarrel/mysql"
-      version = "~> 1.10.2"
+    postgresql = {
+      source = "cyrilgdn/postgresql"
+      version = "1.15.0"
     }
   }
+  
   required_version = ">= 0.13"
-}
-
-variable "MYSQL_ROOT_PASSWORD" {
-  type = string
-}
-
-variable "MYSQL_ENDPOINT" {
-  type = string
 }
 
 # Configure the Consul provider - assumes SSH port forwarding
@@ -28,8 +21,15 @@ provider "nomad" {
 provider "vault" {
 }
 
-provider "mysql" {
-  endpoint = "${var.MYSQL_ENDPOINT}"
-  username = "root"
-  password = "${var.MYSQL_ROOT_PASSWORD}"
+variable "POSTGRES_SUPERUSER_PASSWORD" {
+  type = string
+}
+
+provider "postgresql" {
+  host            = "10.88.99.20"
+  port            = 5432
+  username        = "postgres"
+  password        = var.POSTGRES_SUPERUSER_PASSWORD
+  connect_timeout = 5
+  sslmode = "disable"
 }

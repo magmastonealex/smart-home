@@ -1,45 +1,26 @@
-
-variable "applications" {
-    default = ["hello", "gitea"]
+variable "postgres_applications" {
+    default = ["gitdb", "passwords", "mealie", "freshrss"]
     type = set(string)
 }
 
-module "appdb_mysql" {
-  source = "./modules/appdb"
-  for_each = var.applications
+module "appdb_postgres" {
+  source = "./modules/appdb_postgres"
+  for_each = var.postgres_applications
+  allow_special_in_password = each.key == "gitdb"
   app_name     = each.key
 }
 
-resource "consul_config_entry" "mysql-admin" {
-  kind = "service-intentions"
-  name = "mysql"
-
-  config_json = jsonencode({
-    Sources = concat([
-      {
-        Name   = "mysql-admin"
-        Action = "allow"
-        Precedence = 9
-        Type = "consul"
-      }
-    ],
-    [for s in var.applications : {Name = s, Action = "allow", Precedence = 9, Type = "consul"}],
-    [for s in var.applications : {Name = "${s}-backup", Action = "allow", Precedence = 9, Type = "consul"}])
-  })
-}
-
-
-resource "nomad_job" "backup_jobs" {
-    jobspec = data.template_file.jobspec[each.key].rendered
-    for_each = var.applications
+resource "nomad_job" "pg_backup_jobs" {
+    jobspec = data.template_file.pg_jobspec[each.key].rendered
+    for_each = var.postgres_applications
     hcl2 {
         enabled = true
     }
 }
 
-data "template_file" "jobspec" {
-  template = "${file("${path.module}/backupjobspec.hcl")}"
-  for_each = var.applications
+data "template_file" "pg_jobspec" {
+  template = "${file("${path.module}/pg_backupjobspec.hcl")}"
+  for_each = var.postgres_applications
   vars = {
     app_name = each.key
   }

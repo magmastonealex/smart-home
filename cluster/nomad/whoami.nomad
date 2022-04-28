@@ -24,7 +24,8 @@ job "whoami" {
       tags = [
         "traefik.enable=true",
         "traefik.consulcatalog.connect=true",
-        "traefik.http.routers.whoami.rule=Path(`/whoami`)",
+        "traefik.http.routers.whoami.rule=Host(`whoami.home.svcs.alexroth.me`)",
+        "traefik.http.routers.whoami.tls=true"
       ]
     }
 

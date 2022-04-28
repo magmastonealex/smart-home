@@ -116,11 +116,11 @@ EOH
       driver = "docker"
 
       vault {
-          policies = ["gitea-policy"]
+          policies = ["gitdb-policy"]
       }
 
       config {
-        image = "gitea/gitea:1.15.4"
+        image = "gitea/gitea:1.16.5"
         volumes = [
           "/dockershare/gitea/:/data",
           "/etc/timezone:/etc/timezone:ro",
@@ -132,13 +132,13 @@ EOH
         data = <<EOH
 USER_UID="1000"
 USER_GID="1000"
-{{with secret "secret/data/gitea_creds"}}
+{{with secret "secret/data/gitdb_pg_creds"}}
 GITEA__database__PASSWD="{{.Data.data.password}}"
 GITEA__database__USER="{{.Data.data.user}}"
 {{end}}
-GITEA__database__NAME="gitea"
-GITEA__database__HOST="127.0.0.1:3306"
-GITEA__database__DB_TYPE="mysql"
+GITEA__database__NAME="gitdb"
+GITEA__database__HOST="10.88.99.20"
+GITEA__database__DB_TYPE="postgres"
 EOH
 
         destination = "secrets/file.env"

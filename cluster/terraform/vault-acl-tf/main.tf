@@ -115,6 +115,15 @@ resource "vault_consul_secret_backend_role" "example" {
   ]
 }
 
+resource "vault_consul_secret_backend_role" "patroni-role" {
+  name    = "patroni-consul-role"
+  backend = vault_consul_secret_backend.consul.path
+
+  policies = [
+    "patroni-access-policy",
+  ]
+}
+
 resource "vault_policy" "test-policy-temp" {
   name = "test-policy-temp"
 
@@ -135,6 +144,30 @@ path "${vault_consul_secret_backend.consul.path}/creds/traefik-role" {
   capabilities = ["read"]
 }
 path "secret/data/dns-svcaccount" {
+  capabilities = ["read"]
+}
+EOT
+}
+
+resource "vault_policy" "patroni-policy" {
+  name = "patroni-policy"
+
+  policy = <<EOT
+path "${vault_consul_secret_backend.consul.path}/creds/patroni-consul-role" {
+  capabilities = ["read"]
+}
+path "secret/data/postgres" {
+  capabilities = ["read"]
+}
+EOT
+}
+
+
+resource "vault_policy" "borg-backup-policy" {
+  name = "borg-backup-policy"
+
+  policy = <<EOT
+path "secret/data/borg" {
   capabilities = ["read"]
 }
 EOT

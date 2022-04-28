@@ -15,3 +15,9 @@ resource "consul_acl_token" "nomad-tokens" {
   policies = ["${consul_acl_policy.consul-nomad-policy.name}"]
 }
 
+
+
+resource "consul_acl_token" "patroni-token" {
+  description = "Patroni Token"
+  policies = ["${consul_acl_policy.patroni-policy.name}"]
+}

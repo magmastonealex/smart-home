@@ -92,3 +92,21 @@ node_prefix "" {
 RULE
 }
 
+resource "consul_acl_policy" "patroni-policy" {
+  name = "patroni-access-policy"
+  rules = <<-RULE
+service_prefix "postdb" {
+    policy = "write"
+}
+key_prefix "/hapostgres/postdb" {
+    policy = "write"
+}
+key_prefix "hapostgres/postdb" {
+    policy = "write"
+}
+session_prefix "" {
+    policy = "write"
+}
+RULE
+}
+

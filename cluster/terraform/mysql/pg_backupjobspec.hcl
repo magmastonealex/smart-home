@@ -1,6 +1,6 @@
-job "${app_name}_mysql_backup" {
+job "${app_name}_pg_backup" {
   periodic {
-    cron             = "0 1 0 * * * *"
+    cron             = "0 2 0 * * * *"
     prohibit_overlap = true
   }
   datacenters = ["dc1"]
@@ -12,18 +12,7 @@ job "${app_name}_mysql_backup" {
     }
 
     service {
-      name = "${app_name}-backup"
-
-      connect {
-        sidecar_service {
-            proxy {
-                upstreams {
-                    destination_name = "mysql"
-                    local_bind_port = 3306
-                }
-            }
-        }
-      }
+      name = "${app_name}-pg-backup"
     }
     task "backup" {
 
@@ -36,10 +25,10 @@ job "${app_name}_mysql_backup" {
       template {
         destination = "secrets/config.json"
         data = <<EOF
-{{with secret "secret/data/backup_${app_name}_creds"}}
+{{with secret "secret/data/backup_${app_name}_pg_creds"}}
   {
-      "host": "127.0.0.1",
-      "port": 3306,
+      "host": "10.88.99.20",
+      "port": 5432,
       "user": "{{.Data.data.user}}",
       "password": "{{.Data.data.password}}",
       "db": "${app_name}"
@@ -49,11 +38,11 @@ EOF
       }
 
       config {
-        image = "docker.svcs.alexroth.me/mysql-backup:1.0.6"
+        image = "docker.svcs.alexroth.me/pgback:1.0.8"
         
         volumes = [
           "secrets/config.json:/config.json",
-          "/dockershare/mysqlback/${app_name}:/backup",
+          "/dockershare/mysqlback/${app_name}_pg:/backup",
         ]
       }
 
