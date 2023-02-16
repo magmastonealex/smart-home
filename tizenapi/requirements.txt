@@ -10,4 +10,4 @@ markupsafe==1.1.1
 requests==2.23.0
 urllib3==1.25.9
 wakeonlan==1.1.6
-werkzeug==1.0.1
+werkzeug==2.2.3
